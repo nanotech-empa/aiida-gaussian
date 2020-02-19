@@ -14,26 +14,18 @@
     ],
     "version": "0.1.0a0",
     "entry_points": {
-        "aiida.data": [
-            "gaussian = aiida_gaussian.data:DiffParameters"
-        ],
         "aiida.calculations": [
-            "gaussian = aiida_gaussian.calculations:DiffCalculation"
+            "gaussian = aiida_gaussian.calculations:GaussianCalculation"
         ],
         "aiida.parsers": [
-            "gaussian = aiida_gaussian.parsers:DiffParser"
-        ],
-        "aiida.cmdline.data": [
-            "gaussian = aiida_gaussian.cli:data_cli"
+            "gaussian = aiida_gaussian.parsers:GaussianBaseParser"
         ]
     },
     "include_package_data": true,
     "setup_requires": ["reentry"],
     "reentry_register": true,
     "install_requires": [
-        "aiida-core>=1.0.0,<2.0.0",
-        "six",
-        "voluptuous"
+        "aiida-core>=1.0.0,<2.0.0"
     ],
     "extras_require": {
         "testing": [

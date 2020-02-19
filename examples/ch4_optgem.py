@@ -37,12 +37,12 @@ def example_dft(g_code):
             'basis_set':'6-31g',
             'route_parameters':{
                 'nosymm': None,
-                'Output':'WFX'
+                'opt': None
                 },
-            'input_parameters':{'output.wfx':None},
+            # 'input_parameters':{'output.wfx':None},
             'link0_parameters':{
                 '%chk':'mychk.chk',
-                '%mem':'100000kb',
+                '%mem':'1gb',
                 '%nprocshared':'2'
                 },
         })
@@ -60,11 +60,11 @@ def example_dft(g_code):
         "num_mpiprocs_per_machine": 2,
         "tot_num_mpiprocs": parameters['link0_parameters']['%nprocshared']
     }
-    builder.metadata.options.max_memory_kb = int(parameters['link0_parameters']['%mem'][:-2])
+    # builder.metadata.options.max_memory_kb = int(parameters['link0_parameters']['%mem'][:-2])
 
     builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
-    builder.metadata.dry_run = True
-    builder.metadata.store_provenance = False
+    builder.metadata.dry_run = False
+    builder.metadata.store_provenance = True
 
     print("Submitted calculation...")
     run(builder)

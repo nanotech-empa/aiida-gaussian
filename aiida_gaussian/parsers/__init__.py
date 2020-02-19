@@ -8,7 +8,7 @@ import os
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict
+from aiida.orm import Dict, StructureData
 import pymatgen.io.gaussian as mgaus
 
 class GaussianBaseParser(Parser):

@@ -3,7 +3,7 @@
     "author": "Kristjan Eimre",
     "author_email": "kristjaneimre@gmail.com",
     "description": "AiiDA plugin for the Gaussian quantum chemistry software",
-    "url": "https://github.com/eimrek/aiida-gaussian",
+    "url": "https://github.com/nanotech-empa/aiida-gaussian",
     "license": "MIT",
     "classifiers": [
         "Programming Language :: Python",
@@ -18,7 +18,7 @@
             "gaussian = aiida_gaussian.calculations:GaussianCalculation"
         ],
         "aiida.parsers": [
-            "gaussian = aiida_gaussian.parsers:GaussianBaseParser"
+            "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser"
         ]
     },
     "include_package_data": true,

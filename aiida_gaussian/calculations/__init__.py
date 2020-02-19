@@ -18,13 +18,13 @@ import pymatgen.io.gaussian as mgaus
 StructureData = DataFactory('structure')
 
 class GaussianCalculation(CalcJob):
-    """subclass of CalcJob to do the Qchem Calculations!"""
+    """AiiDA calculation plugin wrapping Gaussian"""
     # Defaults
     INPUT_FILE = 'aiida.gjf'
     OUTPUT_FILE = 'aiida.log'
     CHK_FILE = 'aiida.chk'
     PROJECT_NAME = 'aiida'
-    DEFAULT_PARSER = 'gaussian'
+    DEFAULT_PARSER = 'gaussian_base_parser'
 
     @classmethod
     def define(cls, spec):
@@ -73,16 +73,20 @@ class GaussianCalculation(CalcJob):
         #         dynamic=True,
         #         help='Parameters for the Link0(%) section')
 
+        # Turn mpi off by default
+        spec.input('metadata.options.withmpi', valid_type=bool, default=False)
 
         spec.input('metadata.options.parser_name', valid_type=six.string_types, default=cls.DEFAULT_PARSER, non_db=True)
 
-        # Output parameters
-        spec.output('output_parameters', valid_type=Dict, required=True, help="The results of a calculation")
+        # Outputs
+        spec.output('output_parameters', valid_type=Dict, required=True, help="The result parameters of the calculation")
+        spec.output('output_structure', valid_type=StructureData, required=False, help="Final optimized structure, if available")
+
+        spec.default_output_node = 'output_parameters'
 
         # Exit codes
+        spec.exit_code(100, 'ERROR_MISSING_OUTPUT_FILES', message='Calculation did not produce all expected output files.')
 
-        # Default output node
-        spec.default_output_node = 'output_parameters'
 
     # --------------------------------------------------------------------------
     # pylint: disable = too-many-locals
@@ -145,15 +149,17 @@ class GaussianCalculation(CalcJob):
 
         # create code info
         codeinfo = CodeInfo()
-        codeinfo.cmdline_params = settings.pop('cmdline', []) + [self.INPUT_FILE]
-        # codeinfo.cmdline_params = settings.pop('cmdline', []) + [self.INPUT_FILE]
+        codeinfo.cmdline_params = settings.pop('cmdline', [])
         codeinfo.code_uuid = self.inputs.code.uuid
+        codeinfo.stdin_name = self.INPUT_FILE
+        codeinfo.stdout_name = self.OUTPUT_FILE
+        codeinfo.withmpi = self.inputs.metadata.options.withmpi
 
-        calcinfo.stdin_name = self.INPUT_FILE
+        # create calculation info
         calcinfo.uuid = self.uuid
         calcinfo.cmdline_params = codeinfo.cmdline_params
         calcinfo.stdin_name = self.INPUT_FILE
-        #calcinfo.stdout_name = self.OUTPUT_FILE
+        calcinfo.stdout_name = self.OUTPUT_FILE
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = [self.OUTPUT_FILE]
 

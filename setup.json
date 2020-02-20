@@ -16,7 +16,8 @@
     "entry_points": {
         "aiida.calculations": [
             "gaussian = aiida_gaussian.calculations:GaussianCalculation",
-            "gaussian.formchk = aiida_gaussian.calculations:FormchkCalculation"
+            "gaussian.formchk = aiida_gaussian.calculations:FormchkCalculation",
+            "gaussian.cubegen = aiida_gaussian.calculations:CubegenCalculation"
         ],
         "aiida.parsers": [
             "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser"

@@ -35,14 +35,7 @@ class GaussianBaseParser(Parser):
         except Exception:  # pylint: disable=broad-except
             pass
 
-        self._parse_stdout(outobj)
+        self.out("output_parameters", Dict(dict=outobj.as_dict()))
 
         return ExitCode(0)
 
-    def _parse_stdout(self, outobj):
-        """Basic Gaussian output file parser"""
-        output_dict = {}
-        output_dict['final_energy'] = outobj.final_energy
-        output_dict['energy_unit'] = 'Hartree'
-
-        self.out("output_parameters", Dict(dict=output_dict))

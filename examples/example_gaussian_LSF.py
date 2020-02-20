@@ -37,7 +37,7 @@ def example_dft(gaussian_code):
     parameters = Dict(
         dict={
             'link0_parameters': {
-                '%chk':'mychk.chk',
+                '%chk':'aiida.chk',
                 '%mem':"%dMB" % memory_mb,
                 '%nprocshared': str(num_cores),
             },
@@ -55,7 +55,7 @@ def example_dft(gaussian_code):
     link1_parameters = Dict(
         dict={
             'link0_parameters': {
-                '%chk':'mychk.chk',
+                '%chk':'aiida.chk',
                 '%mem':"%dMB" % memory_mb,
                 '%nprocshared': str(num_cores),
             },

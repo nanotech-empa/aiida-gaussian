@@ -15,7 +15,8 @@
     "version": "0.1.0a0",
     "entry_points": {
         "aiida.calculations": [
-            "gaussian = aiida_gaussian.calculations:GaussianCalculation"
+            "gaussian = aiida_gaussian.calculations:GaussianCalculation",
+            "gaussian.formchk = aiida_gaussian.calculations:FormchkCalculation"
         ],
         "aiida.parsers": [
             "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser"

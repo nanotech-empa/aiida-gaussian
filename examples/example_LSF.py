@@ -33,7 +33,7 @@ def example_dft(gaussian_code):
     num_cores = 1
     memory_mb = 1000
 
-    # parameters
+    # Main parameters
     parameters = Dict(
         dict={
             'link0_parameters': {
@@ -43,13 +43,32 @@ def example_dft(gaussian_code):
             },
             'functional':'PBE1PBE',
             'basis_set':'6-31g',
+            'charge': 0,
+            'multiplicity': 1,
             'route_parameters': {
                 'nosymm': None,
-                'Output':'WFX'
+                'opt': None,
             },
-            'input_parameters': {
-                'output.wfx':None
+        })
+
+    # Main parameters
+    link1_parameters = Dict(
+        dict={
+            'link0_parameters': {
+                '%chk':'mychk.chk',
+                '%mem':"%dMB" % memory_mb,
+                '%nprocshared': str(num_cores),
             },
+            'functional':'PBE1PBE',
+            'basis_set':'6-311g',
+            'charge': 0,
+            'multiplicity': 1,
+            'route_parameters': {
+                'nosymm': None,
+                'guess': 'read',
+                'geom': 'checkpoint',
+                'sp': None,
+            }
         })
 
     # Construct process builder
@@ -59,6 +78,10 @@ def example_dft(gaussian_code):
     builder.structure = structure
     builder.parameters = parameters
     builder.code = gaussian_code
+
+    builder.extra_link1_sections = {
+        "extra1": link1_parameters,
+    }
 
     #builder.metadata.options.resources = {
     #    "num_machines": 1,

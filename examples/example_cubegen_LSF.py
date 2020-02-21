@@ -23,7 +23,7 @@ def example(code):
 
 
     builder = CubegenCalculation.get_builder()
-    builder.parent_calc = load_node(181).outputs.remote_folder
+    builder.parent_calc_folder = load_node(230).outputs.remote_folder
     builder.code = code
 
     builder.parameters = Dict(dict = {

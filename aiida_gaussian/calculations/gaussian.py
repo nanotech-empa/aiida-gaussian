@@ -53,12 +53,12 @@ class GaussianCalculation(CalcJob):
         spec.input('structure',
             valid_type=StructureData,
             required=True,
-            help='Input passed as pymatgen_molecule object')
+            help='Input structure; will be converted to pymatgen object')
 
         spec.input('parameters', valid_type=Dict, required=True, help='Input parameters')
         spec.input('settings', valid_type=Dict, required=False, help='additional input parameters')
 
-        spec.input('parent_folder', valid_type=RemoteData, required=False, help='the folder of a completed gaussian calculation')
+        spec.input('parent_calc_folder', valid_type=RemoteData, required=False, help='the folder of a completed gaussian calculation')
 
         spec.input_namespace(
                 'extra_link1_sections',
@@ -138,10 +138,10 @@ class GaussianCalculation(CalcJob):
          # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
-        if 'parent_folder' in self.inputs:
-            comp_uuid = self.inputs.parent_folder.computer.uuid
-            remote_path = self.inputs.parent_folder.get_remote_path()
-            copy_info = (comp_uuid, remote_path, "parent_folder")
+        if 'parent_calc_folder' in self.inputs:
+            comp_uuid = self.inputs.parent_calc_folder.computer.uuid
+            remote_path = self.inputs.parent_calc_folder.get_remote_path()
+            copy_info = (comp_uuid, remote_path, "parent_calc")
             if self.inputs.code.computer.uuid == comp_uuid:  # if running on the same computer - make a symlink
                 # if not - copy the folder
                 calcinfo.remote_symlink_list.append(copy_info)

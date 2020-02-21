@@ -40,7 +40,7 @@ class CubegenCalculation(CalcJob):
         super(CubegenCalculation, cls).define(spec)
 
         spec.input("parameters", valid_type=Dict, required=True, help='dictionary containing entries for cubes to be printed.')
-        spec.input('parent_calc', valid_type=RemoteData, required=True, help='the folder of a containing the .fchk')
+        spec.input('parent_calc_folder', valid_type=RemoteData, required=True, help='the folder of a containing the .fchk')
 
         spec.input('retrieve_cubes', valid_type=Bool, required=False, default=Bool(False), help='should the cube be retrieved?')
         spec.input("gauss_memdef", valid_type=Int, required=False, default=Int(1024), help="Set the GAUSS_MEMDEF env variable to set the max memory in MB.")
@@ -91,8 +91,8 @@ class CubegenCalculation(CalcJob):
          # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
-        comp_uuid = self.inputs.parent_calc.computer.uuid
-        remote_path = self.inputs.parent_calc.get_remote_path()
+        comp_uuid = self.inputs.parent_calc_folder.computer.uuid
+        remote_path = self.inputs.parent_calc_folder.get_remote_path()
         copy_info = (comp_uuid, remote_path, self._PARENT_FOLDER_NAME)
         if self.inputs.code.computer.uuid == comp_uuid:  # if running on the same computer - make a symlink
             # if not - copy the folder

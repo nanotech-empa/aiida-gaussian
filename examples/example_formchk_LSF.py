@@ -27,7 +27,7 @@ def example(code):
 
     builder = FormchkCalculation.get_builder()
 
-    builder.gaussian_folder = gaussian_remotedata
+    builder.parent_calc_folder = gaussian_remotedata
     builder.code = code
 
     builder.metadata.options.resources = {

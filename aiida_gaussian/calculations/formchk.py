@@ -19,13 +19,13 @@ class FormchkCalculation(CalcJob):
 
     _DEFAULT_INPUT_FILE = "aiida.chk"
     _DEFAULT_OUTPUT_FILE = "aiida.fchk"
-    _PARENT_FOLDER_NAME = "gaussian_folder"
+    _PARENT_FOLDER_NAME = "parent_calc"
 
     @classmethod
     def define(cls, spec):
         super(FormchkCalculation, cls).define(spec)
 
-        spec.input('gaussian_folder', valid_type=RemoteData, required=True, help='the folder of a containing the .chk')
+        spec.input('parent_calc_folder', valid_type=RemoteData, required=True, help='the folder of a containing the .chk')
         spec.input('chk_name', valid_type=Str, required=False, default=Str(cls._DEFAULT_INPUT_FILE), help="name of the checkpoint file")
 
         # Turn mpi off by default
@@ -35,30 +35,26 @@ class FormchkCalculation(CalcJob):
     # pylint: disable = too-many-locals
     def prepare_for_submission(self, folder):
 
-
-
         # create code info
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
-        codeinfo.stdin_name = self._PARENT_FOLDER_NAME + "/" + self.inputs.chk_name.value
-        codeinfo.stdout_name = self._DEFAULT_OUTPUT_FILE
+        codeinfo.cmdline_params = [
+            self._PARENT_FOLDER_NAME + "/" + self.inputs.chk_name.value,
+            self._DEFAULT_OUTPUT_FILE
+        ]
         codeinfo.withmpi = self.inputs.metadata.options.withmpi
-
         
         # create calculation info
         calcinfo = CalcInfo()
-
         calcinfo.uuid = self.uuid
-        calcinfo.stdin_name = self._PARENT_FOLDER_NAME + "/" + self.inputs.chk_name.value
-        calcinfo.stdout_name = self._DEFAULT_OUTPUT_FILE
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = []
 
          # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
-        comp_uuid = self.inputs.gaussian_folder.computer.uuid
-        remote_path = self.inputs.gaussian_folder.get_remote_path()
+        comp_uuid = self.inputs.parent_calc_folder.computer.uuid
+        remote_path = self.inputs.parent_calc_folder.get_remote_path()
         copy_info = (comp_uuid, remote_path, self._PARENT_FOLDER_NAME)
         if self.inputs.code.computer.uuid == comp_uuid:  # if running on the same computer - make a symlink
             # if not - copy the folder

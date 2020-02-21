@@ -22,12 +22,17 @@ parameters = {
     },
     'route_parameters': {
         'nosymm': None,
+        'output':'wfx',
         'opt': 'tight',
     },
-    'input_parameters':{'output.wfx':None},
+    'input_parameters': { # appended at the end of the input
+        'output.wfx':None
+    }, 
 }
 ```
+Specifying `key: None` adds only the keyword without the equals sign.
 
+Multiple `link1` sections are allowed through the `extra_link1_sections` parameter but this is discouraged and steps should be separated into AiiDA workflow steps.
 
 Additionally, simple plugins to submit the Gaussian utilities `formchk` and `cubegen` are provided.
 

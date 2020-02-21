@@ -1,6 +1,6 @@
 {
     "name": "aiida-gaussian",
-    "author": "Kristjan Eimre",
+    "author": "Kristjan Eimre, Pezhman Zarabadi-Poor",
     "author_email": "kristjaneimre@gmail.com",
     "description": "AiiDA plugin for the Gaussian quantum chemistry software",
     "url": "https://github.com/nanotech-empa/aiida-gaussian",

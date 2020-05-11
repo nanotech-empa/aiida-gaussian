@@ -21,11 +21,7 @@ GaussianCalculation = CalculationFactory('gaussian')
 
 
 def example_dft(gaussian_code):
-    """Run simple DFT calculation"""
-
-    print("Testing Gaussian Input Creation")
-
-    pwd = os.path.dirname(os.path.realpath(__file__))
+    """Run a simple two-step gaussian calculation"""
 
     # structure
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
@@ -33,7 +29,7 @@ def example_dft(gaussian_code):
     num_cores = 1
     memory_mb = 1000
 
-    # Main parameters
+    # Main parameters: geometry optimization
     parameters = Dict(
         dict={
             'link0_parameters': {
@@ -41,17 +37,18 @@ def example_dft(gaussian_code):
                 '%mem':"%dMB" % memory_mb,
                 '%nprocshared': str(num_cores),
             },
-            'functional':'PBE1PBE',
+            'functional':'BLYP',
             'basis_set':'6-31g',
             'charge': 0,
             'multiplicity': 1,
             'route_parameters': {
+                'scf': {'maxcycle': 512,'cdiis': None},
                 'nosymm': None,
                 'opt': None,
             },
         })
 
-    # Main parameters
+    # Link1 step: population analysis with better basis
     link1_parameters = Dict(
         dict={
             'link0_parameters': {
@@ -59,7 +56,7 @@ def example_dft(gaussian_code):
                 '%mem':"%dMB" % memory_mb,
                 '%nprocshared': str(num_cores),
             },
-            'functional':'PBE1PBE',
+            'functional':'BLYP',
             'basis_set':'6-311g',
             'charge': 0,
             'multiplicity': 1,
@@ -67,6 +64,7 @@ def example_dft(gaussian_code):
                 'nosymm': None,
                 'guess': 'read',
                 'geom': 'checkpoint',
+                'pop': 'Hirshfeld',
                 'sp': None,
             }
         })
@@ -83,25 +81,19 @@ def example_dft(gaussian_code):
         "extra1": link1_parameters,
     }
 
-    #builder.metadata.options.resources = {
-    #    "num_machines": 1,
-    #    "num_mpiprocs_per_machine": num_cores,
-    #    "tot_num_mpiprocs": num_cores,
-    #}
     builder.metadata.options.resources = {
-        "tot_num_mpiprocs": 1,
+        "tot_num_mpiprocs": num_cores,
         "num_machines": 1,
     }
 
     builder.metadata.options.max_memory_kb = memory_mb*1024
-    builder.metadata.options.custom_scheduler_commands = "#BSUB -R \"rusage[mem=%d,scratch=%d]\"" % (
-        int(memory_mb/num_cores*1.25),
-        int(memory_mb/num_cores*2.15*2)
-    )
 
-    builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
-    #builder.metadata.dry_run = True
-    #builder.metadata.store_provenance = False
+    builder.metadata.options.max_wallclock_seconds = 5 * 60
+
+    #builder.metadata.options.custom_scheduler_commands = "#BSUB -R \"rusage[mem=%d,scratch=%d]\"" % (
+    #    int(memory_mb/num_cores*1.25),
+    #    int(memory_mb/num_cores*2.15*2)
+    #)
 
     print("Submitted calculation...")
     run(builder)

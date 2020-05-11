@@ -62,7 +62,7 @@ def example_dft(g_code):
     }
     builder.metadata.options.max_memory_kb = int(parameters['link0_parameters']['%mem'][:-2])
 
-    builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
+    builder.metadata.options.max_wallclock_seconds = 3 * 60
     builder.metadata.dry_run = True
     builder.metadata.store_provenance = False
 

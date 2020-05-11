@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Gaussian input plugin."""
+"""Gaussian formchk plugin."""
 from __future__ import absolute_import
 import os
 from shutil import copyfile, copytree
@@ -26,7 +26,7 @@ class FormchkCalculation(CalcJob):
         super(FormchkCalculation, cls).define(spec)
 
         spec.input('parent_calc_folder', valid_type=RemoteData, required=True, help='the folder of a containing the .chk')
-        spec.input('chk_name', valid_type=Str, required=False, default=Str(cls._DEFAULT_INPUT_FILE), help="name of the checkpoint file")
+        spec.input('chk_name', valid_type=Str, required=False, default=lambda: Str(cls._DEFAULT_INPUT_FILE), help="name of the checkpoint file")
 
         # Turn mpi off by default
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)

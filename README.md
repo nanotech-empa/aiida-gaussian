@@ -30,7 +30,7 @@ parameters = {
     }, 
 }
 ```
-Specifying `key: None` adds only the keyword without the equals sign.
+In `route_parameters`, specifying `key: None` adds only `key` without the equals sign to the input script.
 
 Multiple `link1` sections are allowed through the `extra_link1_sections` parameter but this is discouraged and steps should be separated into AiiDA workflow steps.
 
@@ -46,14 +46,10 @@ pip install aiida-gaussian
 
 A quick demo of how to submit a calculation:
 ```shell
-verdi daemon start         # make sure the daemon is running
+verdi daemon start # make sure the daemon is running
 cd examples
 # Submit test calculation (argument is the label of gaussian code)
 verdi run example_01_opt_n_pop.py gaussian09 
-verdi process list -a  # check status of calculation
+verdi process list -a # check status of calculation
 ```
-
-## License
-
-MIT
 

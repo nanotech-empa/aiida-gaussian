@@ -11,6 +11,6 @@ def clear_database_auto(clear_database):  # pylint: disable=unused-argument
 def gaussian_code(aiida_local_code_factory):
     """Get a gaussian code.
     """
-    gaussian_code = aiida_local_code_factory(executable='diff',
+    gaussian_code = aiida_local_code_factory(executable='g09',
                                              entry_point='gaussian')
     return gaussian_code

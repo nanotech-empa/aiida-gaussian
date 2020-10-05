@@ -26,7 +26,7 @@ def example_dft(gaussian_code):
         pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
     num_cores = 1
-    memory_mb = 1000
+    memory_mb = 100
 
     # Main parameters: geometry optimization
     parameters = Dict(
@@ -88,7 +88,8 @@ def example_dft(gaussian_code):
         "num_machines": 1,
     }
 
-    builder.metadata.options.max_memory_kb = memory_mb * 1024
+    # Should ask for extra ~1.5GB for libraries etc
+    builder.metadata.options.max_memory_kb = memory_mb * 1024 + 1536 * 1024
 
     builder.metadata.options.max_wallclock_seconds = 5 * 60
 

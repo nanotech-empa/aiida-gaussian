@@ -8,7 +8,7 @@ from __future__ import absolute_import
 import sys
 import click
 
-from aiida.engine import run
+from aiida.engine import run, submit
 from aiida.orm import Code, Dict, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
@@ -18,7 +18,7 @@ import pymatgen as mg
 GaussianCalculation = CalculationFactory('gaussian')
 
 
-def example_dft(g_code):
+def example_dft(gaussian_code):
     """Run simple DFT calculation"""
 
     print("Testing Gaussian Input Creation")
@@ -26,6 +26,8 @@ def example_dft(g_code):
     # structure
     structure = StructureData(
         pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+
+    memory_mb = 100
 
     # parameters
     parameters = Dict(
@@ -41,7 +43,7 @@ def example_dft(g_code):
             },
             'link0_parameters': {
                 '%chk': 'mychk.chk',
-                '%mem': '100000kb',
+                '%mem': '%dMB' % memory_mb,
                 '%nprocshared': '2'
             },
         })
@@ -52,22 +54,22 @@ def example_dft(g_code):
 
     builder.structure = structure
     builder.parameters = parameters
-    builder.code = g_code
+    builder.code = None
 
     builder.metadata.options.resources = {
         "num_machines": 1,
-        "num_mpiprocs_per_machine": 2,
-        "tot_num_mpiprocs": parameters['link0_parameters']['%nprocshared']
+        "tot_num_mpiprocs": int(parameters['link0_parameters']['%nprocshared'])
     }
-    builder.metadata.options.max_memory_kb = int(
-        parameters['link0_parameters']['%mem'][:-2])
+    builder.metadata.options.max_memory_kb = memory_mb * 1024 + 1536 * 1024
 
     builder.metadata.options.max_wallclock_seconds = 3 * 60
+
     builder.metadata.dry_run = True
     builder.metadata.store_provenance = False
 
-    print("Submitted calculation...")
-    run(builder)
+    process_node = submit(builder)
+
+    print("Submitted dry_run in" + str(process_node.dry_run_info))
 
 
 @click.command('cli')

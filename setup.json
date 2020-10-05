@@ -45,12 +45,6 @@
             "pylint-django<0.9; python_version<'3.0'",
             "pylint==1.9.4; python_version<'3.0'",
             "pylint==2.3.1; python_version>='3.0'"
-        ],
-        "docs": [
-            "sphinx",
-            "sphinxcontrib-contentui",
-            "sphinxcontrib-details-directive; python_version>='3.0'",
-            "sphinx-rtd-theme"
         ]
     }
 }

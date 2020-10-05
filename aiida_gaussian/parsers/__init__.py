@@ -2,7 +2,6 @@
 """AiiDA-Gaussian output parser"""
 from __future__ import absolute_import
 
-import io
 import os
 import tempfile
 

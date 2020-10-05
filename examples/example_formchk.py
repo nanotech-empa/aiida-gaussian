@@ -7,9 +7,7 @@ Runs the formchk utility on the specified gaussian calculation
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
 import sys
-import ase.build
 import click
 
 from aiida.engine import run

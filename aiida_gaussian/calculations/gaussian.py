@@ -1,19 +1,14 @@
 # -*- coding: utf-8 -*-
 """Gaussian input plugin."""
 from __future__ import absolute_import
-import os
-from shutil import copyfile, copytree
-import six
-from six.moves import map, range
 
-from aiida.orm import Dict, FolderData, List, RemoteData, SinglefileData
-from aiida.common import CalcInfo, CodeInfo, InputValidationError
+from aiida.orm import Dict, List, RemoteData, SinglefileData
+from aiida.common import CalcInfo, CodeInfo
 
 # from aiida.cmdline.utils import echo
 from aiida.engine import CalcJob
 from aiida.plugins import DataFactory
 
-import pymatgen as mg
 import pymatgen.io.gaussian as mgaus
 
 StructureData = DataFactory("structure")
@@ -92,7 +87,7 @@ class GaussianCalculation(CalcJob):
 
         spec.input(
             "metadata.options.parser_name",
-            valid_type=six.string_types,
+            valid_type=str,
             default=cls.DEFAULT_PARSER,
             non_db=True,
         )

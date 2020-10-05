@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 """Gaussian formchk plugin."""
 from __future__ import absolute_import
-import os
-from shutil import copyfile, copytree
-import six
-from six.moves import map, range
 
-from aiida.orm import Dict, FolderData, List, RemoteData, SinglefileData, Str
-from aiida.common import CalcInfo, CodeInfo, InputValidationError
+from aiida.orm import FolderData, List, RemoteData, SinglefileData, Str
+from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
-from aiida.plugins import DataFactory
 
 
 class FormchkCalculation(CalcJob):

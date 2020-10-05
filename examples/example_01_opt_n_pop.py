@@ -9,8 +9,8 @@ import sys
 import click
 
 from aiida.engine import run
-from aiida.orm import (Code, Dict, SinglefileData, StructureData)
-from aiida.common import NotExistent, InputValidationError
+from aiida.orm import Code, Dict, StructureData
+from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
 import pymatgen as mg

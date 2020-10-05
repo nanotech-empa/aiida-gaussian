@@ -1,8 +1,8 @@
 # Install pre-commit hooks via:
 # pre-commit install
 
-
 # yapf = yet another python formatter
+repos:
 - repo: https://github.com/pre-commit/mirrors-yapf
   rev: v0.28.0
   hooks:
@@ -12,14 +12,6 @@
 
 - repo: local
   hooks:
-  # prospector: collection of linters
-  - id: prospector
-    language: system
-    types: [file, python]
-    name: prospector
-    description: "This hook runs Prospector: https://github.com/landscapeio/prospector"
-    entry: prospector
-
   - id: version-number
     name: Check version numbers
     entry: python ./.ci/check_version.py

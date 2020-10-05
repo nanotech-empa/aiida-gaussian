@@ -11,8 +11,8 @@ import sys
 import click
 
 from aiida.engine import run
-from aiida.orm import Code, Dict, SinglefileData, StructureData, load_node, Bool
-from aiida.common import NotExistent, InputValidationError
+from aiida.orm import Code, Dict, load_node, Bool
+from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
 CubegenCalculation = CalculationFactory('gaussian.cubegen')

@@ -6,4 +6,4 @@ AiiDA plugin for the Gaussian quantum chemistry software
 
 from __future__ import absolute_import
 
-__version__ = "0.1.0a0"
+__version__ = "0.2.0"

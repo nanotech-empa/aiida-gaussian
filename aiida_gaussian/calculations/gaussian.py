@@ -2,7 +2,7 @@
 """Gaussian input plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import Dict, List, RemoteData, SinglefileData
+from aiida.orm import Dict, RemoteData
 from aiida.common import CalcInfo, CodeInfo
 
 # from aiida.cmdline.utils import echo
@@ -142,7 +142,7 @@ class GaussianCalculation(CalcJob):
 
         # Parse additional link1 sections
         if "extra_link1_sections" in self.inputs:
-            for l1_name, l1_params in self.inputs.extra_link1_sections.items():
+            for _, l1_params in self.inputs.extra_link1_sections.items():
                 input_string += "--Link1--\n"
                 # The link1 secions don't support their own geometries.
                 input_string += GaussianCalculation._render_input_string_from_params(

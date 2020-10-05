@@ -5,12 +5,11 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import os
 import sys
 import click
 
 from aiida.engine import run
-from aiida.orm import (Code, Dict, SinglefileData, StructureData)
+from aiida.orm import Code, Dict, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
@@ -23,8 +22,6 @@ def example_dft(g_code):
     """Run simple DFT calculation"""
 
     print("Testing Gaussian Input Creation")
-
-    pwd = os.path.dirname(os.path.realpath(__file__))
 
     # structure
     structure = StructureData(

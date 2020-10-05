@@ -34,7 +34,7 @@ class GaussianBaseParser(Parser):
 
         # Split the output log according to link1 sections
         output_log_split = [""]
-        for line_i, log_line in enumerate(full_output_log.splitlines()):
+        for _, log_line in enumerate(full_output_log.splitlines()):
             output_log_split[-1] += log_line + "\n"
             if "Normal termination" in log_line:
                 output_log_split.append("")

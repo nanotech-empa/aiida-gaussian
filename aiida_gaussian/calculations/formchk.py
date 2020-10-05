@@ -2,7 +2,7 @@
 """Gaussian formchk plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import FolderData, List, RemoteData, SinglefileData, Str
+from aiida.orm import List, RemoteData, SinglefileData, Str
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
 

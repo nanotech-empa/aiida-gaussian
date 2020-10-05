@@ -42,6 +42,8 @@ Additionally, simple plugins to submit the Gaussian utilities `formchk` and `cub
 pip install aiida-gaussian
 ```
 
+This installs the plugins to the AiiDA instance (to double-check, one can list all installed plugins by `verdi plugin list aiida.calculations`). After this, the Gaussian codes should be set up using the plugins (https://aiida.readthedocs.io/projects/aiida-core/en/latest/).
+
 ## Usage
 
 A quick demo of how to submit a calculation:

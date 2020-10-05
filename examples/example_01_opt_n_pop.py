@@ -24,7 +24,8 @@ def example_dft(gaussian_code):
     """Run a simple two-step gaussian calculation"""
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+    structure = StructureData(
+        pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
     num_cores = 1
     memory_mb = 1000
@@ -33,16 +34,19 @@ def example_dft(gaussian_code):
     parameters = Dict(
         dict={
             'link0_parameters': {
-                '%chk':'aiida.chk',
-                '%mem':"%dMB" % memory_mb,
+                '%chk': 'aiida.chk',
+                '%mem': "%dMB" % memory_mb,
                 '%nprocshared': str(num_cores),
             },
-            'functional':'BLYP',
-            'basis_set':'6-31g',
+            'functional': 'BLYP',
+            'basis_set': '6-31g',
             'charge': 0,
             'multiplicity': 1,
             'route_parameters': {
-                'scf': {'maxcycle': 512,'cdiis': None},
+                'scf': {
+                    'maxcycle': 512,
+                    'cdiis': None
+                },
                 'nosymm': None,
                 'opt': None,
             },
@@ -52,12 +56,12 @@ def example_dft(gaussian_code):
     link1_parameters = Dict(
         dict={
             'link0_parameters': {
-                '%chk':'aiida.chk',
-                '%mem':"%dMB" % memory_mb,
+                '%chk': 'aiida.chk',
+                '%mem': "%dMB" % memory_mb,
                 '%nprocshared': str(num_cores),
             },
-            'functional':'BLYP',
-            'basis_set':'6-311g',
+            'functional': 'BLYP',
+            'basis_set': '6-311g',
             'charge': 0,
             'multiplicity': 1,
             'route_parameters': {
@@ -86,7 +90,7 @@ def example_dft(gaussian_code):
         "num_machines": 1,
     }
 
-    builder.metadata.options.max_memory_kb = memory_mb*1024
+    builder.metadata.options.max_memory_kb = memory_mb * 1024
 
     builder.metadata.options.max_wallclock_seconds = 5 * 60
 

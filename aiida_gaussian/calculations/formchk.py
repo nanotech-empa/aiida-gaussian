@@ -25,8 +25,15 @@ class FormchkCalculation(CalcJob):
     def define(cls, spec):
         super(FormchkCalculation, cls).define(spec)
 
-        spec.input('parent_calc_folder', valid_type=RemoteData, required=True, help='the folder of a containing the .chk')
-        spec.input('chk_name', valid_type=Str, required=False, default=lambda: Str(cls._DEFAULT_INPUT_FILE), help="name of the checkpoint file")
+        spec.input('parent_calc_folder',
+                   valid_type=RemoteData,
+                   required=True,
+                   help='the folder of a containing the .chk')
+        spec.input('chk_name',
+                   valid_type=Str,
+                   required=False,
+                   default=lambda: Str(cls._DEFAULT_INPUT_FILE),
+                   help="name of the checkpoint file")
 
         # Turn mpi off by default
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
@@ -43,14 +50,14 @@ class FormchkCalculation(CalcJob):
             self._DEFAULT_OUTPUT_FILE
         ]
         codeinfo.withmpi = self.inputs.metadata.options.withmpi
-        
+
         # create calculation info
         calcinfo = CalcInfo()
         calcinfo.uuid = self.uuid
         calcinfo.codes_info = [codeinfo]
         calcinfo.retrieve_list = []
 
-         # symlink or copy to parent calculation
+        # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
         comp_uuid = self.inputs.parent_calc_folder.computer.uuid
@@ -61,6 +68,5 @@ class FormchkCalculation(CalcJob):
             calcinfo.remote_symlink_list.append(copy_info)
         else:
             calcinfo.remote_copy_list.append(copy_info)
-        
 
         return calcinfo

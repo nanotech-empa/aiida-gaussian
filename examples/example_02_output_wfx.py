@@ -28,23 +28,26 @@ def example_dft(g_code):
     pwd = os.path.dirname(os.path.realpath(__file__))
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+    structure = StructureData(
+        pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
     # parameters
     parameters = Dict(
         dict={
-            'functional':'PBE1PBE',
-            'basis_set':'6-31g',
-            'route_parameters':{
+            'functional': 'PBE1PBE',
+            'basis_set': '6-31g',
+            'route_parameters': {
                 'nosymm': None,
-                'Output':'WFX'
-                },
-            'input_parameters':{'output.wfx':None},
-            'link0_parameters':{
-                '%chk':'mychk.chk',
-                '%mem':'100000kb',
-                '%nprocshared':'2'
-                },
+                'Output': 'WFX'
+            },
+            'input_parameters': {
+                'output.wfx': None
+            },
+            'link0_parameters': {
+                '%chk': 'mychk.chk',
+                '%mem': '100000kb',
+                '%nprocshared': '2'
+            },
         })
 
     # Construct process builder
@@ -60,7 +63,8 @@ def example_dft(g_code):
         "num_mpiprocs_per_machine": 2,
         "tot_num_mpiprocs": parameters['link0_parameters']['%nprocshared']
     }
-    builder.metadata.options.max_memory_kb = int(parameters['link0_parameters']['%mem'][:-2])
+    builder.metadata.options.max_memory_kb = int(
+        parameters['link0_parameters']['%mem'][:-2])
 
     builder.metadata.options.max_wallclock_seconds = 3 * 60
     builder.metadata.dry_run = True
@@ -84,4 +88,3 @@ def cli(codelabel):
 
 if __name__ == '__main__':
     cli()  # pylint: disable=no-value-for-parameter
-

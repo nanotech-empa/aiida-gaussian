@@ -12,9 +12,9 @@ from aiida.engine import ExitCode
 from aiida.orm import Dict, StructureData
 import pymatgen.io.gaussian as mgaus
 
+
 class GaussianBaseParser(Parser):
     """Basic AiiDA parser for the output of Gaussian"""
-
     def parse(self, **kwargs):
         """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
 
@@ -28,7 +28,9 @@ class GaussianBaseParser(Parser):
         if fname not in out_folder._repository.list_object_names():
             raise OutputParsingError("Gaussian output file not retrieved")
 
-        with open(os.path.join(out_folder._repository._get_base_folder().abspath, fname), 'r') as log_file:
+        with open(
+                os.path.join(out_folder._repository._get_base_folder().abspath,
+                             fname), 'r') as log_file:
             full_output_log = log_file.read()
 
         # Split the output log according to link1 sections
@@ -55,10 +57,11 @@ class GaussianBaseParser(Parser):
 
             # in case of geometry optimization, return the geometry as a separated node
             if 'opt' in parsed_dict['input']['route']:
-                structure = StructureData(pymatgen_molecule=outobj.final_structure)
+                structure = StructureData(
+                    pymatgen_molecule=outobj.final_structure)
                 self.out('%soutput_structure' % output_prefix, structure)
 
-            self.out("%soutput_parameters" % output_prefix, Dict(dict=parsed_dict))
+            self.out("%soutput_parameters" % output_prefix,
+                     Dict(dict=parsed_dict))
 
         return ExitCode(0)
-

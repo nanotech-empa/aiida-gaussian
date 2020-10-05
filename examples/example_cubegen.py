@@ -26,16 +26,17 @@ def example(code, formchk_pk):
     builder.parent_calc_folder = load_node(formchk_pk).outputs.remote_folder
     builder.code = code
 
-    builder.parameters = Dict(dict = {
-        "homo": {
-            "kind": "MO=Homo",
-            "npts": -2,
-        },
-        "density": {
-            "kind": "Density=SCF",
-            "npts": -2,
-        },
-    })
+    builder.parameters = Dict(
+        dict={
+            "homo": {
+                "kind": "MO=Homo",
+                "npts": -2,
+            },
+            "density": {
+                "kind": "Density=SCF",
+                "npts": -2,
+            },
+        })
 
     builder.retrieve_cubes = Bool(True)
 

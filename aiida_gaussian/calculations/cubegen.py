@@ -39,11 +39,28 @@ class CubegenCalculation(CalcJob):
     def define(cls, spec):
         super(CubegenCalculation, cls).define(spec)
 
-        spec.input("parameters", valid_type=Dict, required=True, help='dictionary containing entries for cubes to be printed.')
-        spec.input('parent_calc_folder', valid_type=RemoteData, required=True, help='the folder of a containing the .fchk')
+        spec.input(
+            "parameters",
+            valid_type=Dict,
+            required=True,
+            help='dictionary containing entries for cubes to be printed.')
+        spec.input('parent_calc_folder',
+                   valid_type=RemoteData,
+                   required=True,
+                   help='the folder of a containing the .fchk')
 
-        spec.input('retrieve_cubes', valid_type=Bool, required=False, default=Bool(False), help='should the cube be retrieved?')
-        spec.input("gauss_memdef", valid_type=Int, required=False, default=Int(1024), help="Set the GAUSS_MEMDEF env variable to set the max memory in MB.")
+        spec.input('retrieve_cubes',
+                   valid_type=Bool,
+                   required=False,
+                   default=Bool(False),
+                   help='should the cube be retrieved?')
+        spec.input(
+            "gauss_memdef",
+            valid_type=Int,
+            required=False,
+            default=Int(1024),
+            help=
+            "Set the GAUSS_MEMDEF env variable to set the max memory in MB.")
 
         # Turn mpi off by default
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
@@ -51,26 +68,29 @@ class CubegenCalculation(CalcJob):
     # --------------------------------------------------------------------------
     # pylint: disable = too-many-locals
     def prepare_for_submission(self, folder):
-        
-         # create calculation info
+
+        # create calculation info
         calcinfo = CalcInfo()
         calcinfo.uuid = self.uuid
         calcinfo.codes_info = []
         calcinfo.retrieve_list = []
 
         for key, params in self.inputs.parameters.get_dict().items():
-            
-            cube_name = key+".cube"
+
+            cube_name = key + ".cube"
             kind_str = params["kind"]
             npts = params["npts"]
 
-            # create code info 
+            # create code info
             codeinfo = CodeInfo()
 
             codeinfo.cmdline_params = []
-            codeinfo.cmdline_params.append(str(self.inputs.metadata.options.resources['tot_num_mpiprocs']))
+            codeinfo.cmdline_params.append(
+                str(self.inputs.metadata.options.resources['tot_num_mpiprocs'])
+            )
             codeinfo.cmdline_params.append(kind_str)
-            codeinfo.cmdline_params.append(self._PARENT_FOLDER_NAME + "/" + self._DEFAULT_INPUT_FILE)
+            codeinfo.cmdline_params.append(self._PARENT_FOLDER_NAME + "/" +
+                                           self._DEFAULT_INPUT_FILE)
             codeinfo.cmdline_params.append(cube_name)
             codeinfo.cmdline_params.append(str(npts))
 
@@ -88,7 +108,7 @@ class CubegenCalculation(CalcJob):
         else:
             calcinfo.prepend_text += extra_prepend
 
-         # symlink or copy to parent calculation
+        # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []
         calcinfo.remote_copy_list = []
         comp_uuid = self.inputs.parent_calc_folder.computer.uuid
@@ -99,6 +119,5 @@ class CubegenCalculation(CalcJob):
             calcinfo.remote_symlink_list.append(copy_info)
         else:
             calcinfo.remote_copy_list.append(copy_info)
-        
 
         return calcinfo

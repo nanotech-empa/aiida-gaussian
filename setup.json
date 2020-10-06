@@ -36,7 +36,8 @@
             "wheel~=0.31",
             "coverage",
             "pytest~=6.1",
-            "pytest-cov"
+            "pytest-cov",
+            "coveralls"
         ],
         "pre-commit": [
             "astroid==2.2.5",

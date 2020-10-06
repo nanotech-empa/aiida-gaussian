@@ -1,4 +1,4 @@
-![build](https://github.com/nanotech-empa/aiida-gaussian/workflows/build/badge.svg)
+[![build](https://github.com/nanotech-empa/aiida-gaussian/workflows/build/badge.svg)](https://github.com/nanotech-empa/aiida-gaussian/actions)
 [![Coverage Status](https://coveralls.io/repos/github/nanotech-empa/aiida-gaussian/badge.svg?branch=master)](https://coveralls.io/github/nanotech-empa/aiida-gaussian?branch=master)
 [![PyPI version](https://badge.fury.io/py/aiida-gaussian.svg)](https://badge.fury.io/py/aiida-gaussian)
 

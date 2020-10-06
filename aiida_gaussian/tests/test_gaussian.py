@@ -15,7 +15,7 @@ import os
 from aiida_gaussian import tests
 
 
-def test_gaussian(gaussian_code):
+def test_gaussian(fixture_code):
 
     geometry_file = os.path.join(tests.TEST_DIR, "data", 'ch4.xyz')
     expected_inp_file = os.path.join(tests.TEST_DIR, "data",
@@ -72,7 +72,7 @@ def test_gaussian(gaussian_code):
     # Build the inputs dictionary with a "fake" executable
 
     inputs = {
-        'code': gaussian_code,  #load_code("gaussian09@localhost"),
+        'code': fixture_code('gaussian'),  #load_code("gaussian09@localhost"),
         'structure': structure,
         'parameters': Dict(dict=parameters),
         'extra_link1_sections': {

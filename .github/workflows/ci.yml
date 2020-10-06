@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        python-version: [2.7, 3.7]
+        python-version: [3.8]
         backend: ['django']
     steps:
     - uses: actions/checkout@v1
@@ -48,7 +48,6 @@ jobs:
         PYTEST_ADDOPTS: "--durations=0"
       run: py.test --cov aiida_gaussian --cov-append .
 
-
   pre-commit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -61,7 +60,7 @@ jobs:
     - name: Install python dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[pre-commit,docs,testing]
+        pip install -e .[pre-commit,testing]
         reentry scan -r aiida
     - name: Run pre-commit
       run: |

@@ -2,7 +2,7 @@
 """Gaussian input plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import Dict, RemoteData
+from aiida.orm import Dict, List, RemoteData
 from aiida.common import CalcInfo, CodeInfo
 
 # from aiida.cmdline.utils import echo
@@ -111,9 +111,25 @@ class GaussianCalculation(CalcJob):
 
         # Exit codes
         spec.exit_code(
-            100,
-            "ERROR_MISSING_OUTPUT_FILES",
-            message="Calculation did not produce all expected output files.",
+            200,
+            "ERROR_NO_RETRIEVED_FOLDER",
+            message="The retrieved folder data node could not be accessed.",
+        )
+        spec.exit_code(
+            210,
+            "ERROR_OUTPUT_MISSING",
+            message="The retrieved folder did not contain the output file.",
+        )
+        spec.exit_code(
+            301,
+            "ERROR_SCF_FAILURE",
+            message=
+            "The SCF did not converge and the calculation was terminated.",
+        )
+        spec.exit_code(
+            399,
+            "ERROR_OTHER",
+            message="The calculation was terminated due to an error.",
         )
 
     # --------------------------------------------------------------------------

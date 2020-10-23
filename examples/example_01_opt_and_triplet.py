@@ -8,7 +8,7 @@ from __future__ import absolute_import
 import sys
 import click
 
-from aiida.engine import run
+from aiida.engine import run, run_get_node
 from aiida.orm import Code, Dict, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
@@ -42,8 +42,7 @@ def example_dft(gaussian_code):
             'multiplicity': 1,
             'route_parameters': {
                 'scf': {
-                    'maxcycle': 512,
-                    'cdiis': None
+                    'cdiis': None,
                 },
                 'nosymm': None,
                 'opt': None,
@@ -59,14 +58,16 @@ def example_dft(gaussian_code):
                 '%nprocshared': str(num_cores),
             },
             'functional': 'BLYP',
-            'basis_set': '6-311g',
+            'basis_set': '6-31g',
             'charge': 0,
-            'multiplicity': 1,
+            'multiplicity': 3,
             'route_parameters': {
+                'scf': {
+                    'cdiis': None,
+                },
                 'nosymm': None,
                 'guess': 'read',
                 'geom': 'checkpoint',
-                'pop': 'Hirshfeld',
                 'sp': None,
             }
         })
@@ -98,8 +99,15 @@ def example_dft(gaussian_code):
     #    int(memory_mb/num_cores*2.15*2)
     #)
 
-    print("Submitted calculation...")
-    run(builder)
+    print("Running calculation...")
+    res, node = run_get_node(builder)
+
+    opt_final_en = res['output_parameters']['output']['final_energy'] * 27.2114
+    triplet_en = res['l1_sec1_output_parameters']['output'][
+        'final_energy'] * 27.2114
+
+    print("CH4 singlet ground state energy: %.4f eV" % opt_final_en)
+    print("Vertical triplet excitation: %.4f eV" % (triplet_en - opt_final_en))
 
 
 @click.command('cli')

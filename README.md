@@ -51,7 +51,6 @@ A quick demo of how to submit a calculation:
 verdi daemon start # make sure the daemon is running
 cd examples
 # Submit test calculation (argument is the label of gaussian code)
-verdi run example_01_opt_n_pop.py gaussian09 
-verdi process list -a # check status of calculation
+verdi run example_01_opt_and_triplet.py gaussian09 
 ```
 

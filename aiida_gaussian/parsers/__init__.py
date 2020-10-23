@@ -25,7 +25,7 @@ class GaussianBaseParser(Parser):
         fname = self.node.process_class.OUTPUT_FILE
 
         if fname not in out_folder._repository.list_object_names():
-            raise OutputParsingError("Gaussian output file not retrieved")
+            return self.exit_codes.ERROR_OUTPUT_MISSING
 
         with open(
                 os.path.join(out_folder._repository._get_base_folder().abspath,
@@ -36,10 +36,11 @@ class GaussianBaseParser(Parser):
         output_log_split = [""]
         for _, log_line in enumerate(full_output_log.splitlines()):
             output_log_split[-1] += log_line + "\n"
-            if "Normal termination" in log_line:
+            if "Entering Link 1" in log_line:
                 output_log_split.append("")
-        output_log_split = output_log_split[:-1]
+        output_log_split = output_log_split[1:]
 
+        # Parse each Link 1 section with pymatgen
         for section_i, out_log in enumerate(output_log_split):
             # pymatgen can only parse files,
             # so create temporary ones for each link1 log section
@@ -52,7 +53,7 @@ class GaussianBaseParser(Parser):
             # in case of main section, don't add prefix
             output_prefix = ""
             if section_i > 0:
-                output_prefix = "link1_sec%d_" % section_i
+                output_prefix = "l1_sec%d_" % section_i
 
             # in case of geometry optimization, return the geometry as a separated node
             if 'opt' in parsed_dict['input']['route']:
@@ -62,5 +63,13 @@ class GaussianBaseParser(Parser):
 
             self.out("%soutput_parameters" % output_prefix,
                      Dict(dict=parsed_dict))
+
+        # Check for errors in the output log
+        if "Convergence failure -- run terminated." in full_output_log:
+            return self.exit_codes.ERROR_SCF_FAILURE
+
+        # Any other error...
+        if "Error termination" in full_output_log:
+            return self.exit_codes.ERROR_OTHER
 
         return ExitCode(0)

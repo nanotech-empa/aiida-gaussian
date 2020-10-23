@@ -47,13 +47,13 @@ class CubegenCalculation(CalcJob):
         spec.input('retrieve_cubes',
                    valid_type=Bool,
                    required=False,
-                   default=Bool(False),
+                   default=lambda: Bool(False),
                    help='should the cube be retrieved?')
         spec.input(
             "gauss_memdef",
             valid_type=Int,
             required=False,
-            default=Int(1024),
+            default=lambda: Int(1024),
             help=
             "Set the GAUSS_MEMDEF env variable to set the max memory in MB.")
 

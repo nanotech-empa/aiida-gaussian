@@ -27,11 +27,17 @@ def example_dft(gaussian_code):
     structure = StructureData(
         pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
+    num_cores = 2
     memory_mb = 100
 
     # parameters
     parameters = Dict(
         dict={
+            'link0_parameters': {
+                '%chk': 'aiida.chk',
+                '%mem': '%dMB' % memory_mb,
+                '%nprocshared': num_cores,
+            },
             'functional': 'PBE1PBE',
             'basis_set': '6-31g',
             'route_parameters': {
@@ -40,11 +46,6 @@ def example_dft(gaussian_code):
             },
             'input_parameters': {
                 'output.wfx': None
-            },
-            'link0_parameters': {
-                '%chk': 'mychk.chk',
-                '%mem': '%dMB' % memory_mb,
-                '%nprocshared': '2'
             },
         })
 
@@ -58,8 +59,10 @@ def example_dft(gaussian_code):
 
     builder.metadata.options.resources = {
         "num_machines": 1,
-        "tot_num_mpiprocs": int(parameters['link0_parameters']['%nprocshared'])
+        "tot_num_mpiprocs": num_cores,
     }
+
+    # Should ask for extra ~1.5GB for libraries etc
     builder.metadata.options.max_memory_kb = memory_mb * 1024 + 1536 * 1024
 
     builder.metadata.options.max_wallclock_seconds = 3 * 60

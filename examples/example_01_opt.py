@@ -34,7 +34,7 @@ def example_dft(gaussian_code):
             'link0_parameters': {
                 '%chk': 'aiida.chk',
                 '%mem': "%dMB" % memory_mb,
-                '%nprocshared': str(num_cores),
+                '%nprocshared': num_cores,
             },
             'functional': 'BLYP',
             'basis_set': '6-31g',
@@ -58,8 +58,8 @@ def example_dft(gaussian_code):
     builder.code = gaussian_code
 
     builder.metadata.options.resources = {
-        "tot_num_mpiprocs": num_cores,
         "num_machines": 1,
+        "tot_num_mpiprocs": num_cores,
     }
 
     # Should ask for extra ~1.5GB for libraries etc
@@ -67,17 +67,11 @@ def example_dft(gaussian_code):
 
     builder.metadata.options.max_wallclock_seconds = 5 * 60
 
-    #builder.metadata.options.custom_scheduler_commands = "#BSUB -R \"rusage[mem=%d,scratch=%d]\"" % (
-    #    int(memory_mb/num_cores*1.25),
-    #    int(memory_mb/num_cores*2.15*2)
-    #)
-
     print("Running calculation...")
     res, node = run_get_node(builder)
 
-    final_en = res['output_parameters']['output']['final_energy'] * 27.2114
-
-    print("Final energy: %.4f eV" % final_en)
+    print("Final scf energy: %.4f" %
+          res['output_parameters']['scfenergies'][-1])
 
 
 @click.command('cli')

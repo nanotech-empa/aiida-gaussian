@@ -45,7 +45,7 @@ def example(code, formchk_pk):
 
     builder.metadata.options.max_wallclock_seconds = 5 * 60
 
-    print("Submitted calculation...")
+    print("Running calculation...")
     run(builder)
 
 

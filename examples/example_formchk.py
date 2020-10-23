@@ -36,7 +36,7 @@ def example(code, gaussian_pk):
 
     builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60
 
-    print("Submitted calculation...")
+    print("Running calculation...")
     run(builder)
 
 

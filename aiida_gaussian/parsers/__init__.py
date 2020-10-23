@@ -4,12 +4,18 @@ from __future__ import absolute_import
 
 import os
 import tempfile
+import numpy as np
 
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
 from aiida.orm import Dict, StructureData
+
 import pymatgen.io.gaussian as mgaus
+
+import cclib
+import re
+import ase
 
 
 class GaussianBaseParser(Parser):
@@ -30,6 +36,62 @@ class GaussianBaseParser(Parser):
         log_file_path = os.path.join(
             out_folder._repository._get_base_folder().abspath, fname)
 
+        exit_code = self._parse_log(log_file_path)
+
+        if exit_code is not None:
+            return exit_code
+
+        return ExitCode(0)
+
+    def _parse_log(self, log_file_path):
+        """CCLIB parsing"""
+
+        data = cclib.io.ccread(log_file_path)
+
+        property_dict = data.getattributes()
+
+        # replace the first delta-energy of nan with zero
+        # as nan is not allowed in AiiDA nodes
+        property_dict['scfvalues'] = [
+            np.nan_to_num(svs) for svs in property_dict['scfvalues']
+        ]
+
+        self.out("output_parameters", Dict(dict=property_dict))
+
+        # in case of geometry optimization,
+        # return the last geometry as a separated node
+        if len(property_dict["atomcoords"]) > 1:
+
+            opt_coords = property_dict["atomcoords"][-1]
+
+            # The StructureData output node needs a cell,
+            # even though it is not used in gaussian.
+            # Set it arbitrarily as double the bounding box + 10
+            double_bbox = 2 * np.ptp(opt_coords, axis=0) + 10
+
+            ase_opt = ase.Atoms(property_dict["atomnos"],
+                                positions=property_dict["atomcoords"][-1],
+                                cell=double_bbox)
+
+            structure = StructureData(ase=ase_opt)
+            self.out('output_structure', structure)
+
+        # additional checks on the output file
+        with open(log_file_path, 'r') as logf:
+            log_file = logf.read()
+
+        if "Convergence failure -- run terminated." in log_file:
+            return self.exit_codes.ERROR_SCF_FAILURE
+
+        # Any other error...
+        if "Error termination" in log_file:
+            return self.exit_codes.ERROR_OTHER
+
+        return None
+
+    def _parse_log_pymatgen(self, log_file_path):
+        """Pymatgen parsing unused: less robust and powerful than cclib"""
+
         outobj = mgaus.GaussianOutput(log_file_path)
         parsed_dict = outobj.as_dict()
 
@@ -40,4 +102,14 @@ class GaussianBaseParser(Parser):
 
         self.out("output_parameters", Dict(dict=parsed_dict))
 
-        return ExitCode(0)
+        with open(log_file_path, 'r') as logf:
+            log_file = logf.read()
+
+        if "Convergence failure -- run terminated." in log_file:
+            return self.exit_codes.ERROR_SCF_FAILURE
+
+        # Any other error...
+        if "Error termination" in log_file:
+            return self.exit_codes.ERROR_OTHER
+
+        return None

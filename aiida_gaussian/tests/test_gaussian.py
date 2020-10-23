@@ -49,35 +49,12 @@ def test_gaussian(fixture_code):
         },
     }
 
-    # Link1 step: population analysis with better basis
-    link1_parameters = {
-        'link0_parameters': {
-            '%chk': 'aiida.chk',
-            '%mem': "%dMB" % memory_mb,
-            '%nprocshared': str(num_cores),
-        },
-        'functional': 'BLYP',
-        'basis_set': '6-311g',
-        'charge': 0,
-        'multiplicity': 1,
-        'route_parameters': {
-            'nosymm': None,
-            'guess': 'read',
-            'geom': 'checkpoint',
-            'pop': 'Hirshfeld',
-            'sp': None,
-        }
-    }
-
     # Build the inputs dictionary with a "fake" executable
 
     inputs = {
         'code': fixture_code('gaussian'),  #load_code("gaussian09@localhost"),
         'structure': structure,
         'parameters': Dict(dict=parameters),
-        'extra_link1_sections': {
-            'extra1': Dict(dict=link1_parameters)
-        },
         'metadata': {
             'options': {
                 'resources': {

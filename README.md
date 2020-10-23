@@ -32,8 +32,6 @@ parameters = {
 ```
 In `route_parameters`, specifying `key: None` adds only `key` without the equals sign to the input script.
 
-Multiple `link1` sections are allowed through the `extra_link1_sections` parameter but this is discouraged and steps should be separated into AiiDA workflow steps.
-
 Additionally, simple plugins to submit the Gaussian utilities `formchk` and `cubegen` are provided.
 
 ## Installation
@@ -51,6 +49,6 @@ A quick demo of how to submit a calculation:
 verdi daemon start # make sure the daemon is running
 cd examples
 # Submit test calculation (argument is the label of gaussian code)
-verdi run example_01_opt_and_triplet.py gaussian09 
+verdi run example_01_opt.py gaussian09 
 ```
 

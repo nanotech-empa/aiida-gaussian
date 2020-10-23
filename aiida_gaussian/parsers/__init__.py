@@ -27,49 +27,17 @@ class GaussianBaseParser(Parser):
         if fname not in out_folder._repository.list_object_names():
             return self.exit_codes.ERROR_OUTPUT_MISSING
 
-        with open(
-                os.path.join(out_folder._repository._get_base_folder().abspath,
-                             fname), 'r') as log_file:
-            full_output_log = log_file.read()
+        log_file_path = os.path.join(
+            out_folder._repository._get_base_folder().abspath, fname)
 
-        # Split the output log according to link1 sections
-        output_log_split = [""]
-        for _, log_line in enumerate(full_output_log.splitlines()):
-            output_log_split[-1] += log_line + "\n"
-            if "Entering Link 1" in log_line:
-                output_log_split.append("")
-        output_log_split = output_log_split[1:]
+        outobj = mgaus.GaussianOutput(log_file_path)
+        parsed_dict = outobj.as_dict()
 
-        # Parse each Link 1 section with pymatgen
-        for section_i, out_log in enumerate(output_log_split):
-            # pymatgen can only parse files,
-            # so create temporary ones for each link1 log section
-            tempf = tempfile.NamedTemporaryFile(delete=False, mode='w')
-            tempf.write(out_log)
-            tempf.close()
-            outobj = mgaus.GaussianOutput(tempf.name)
-            parsed_dict = outobj.as_dict()
+        # in case of geometry optimization, return the geometry as a separated node
+        if 'opt' in parsed_dict['input']['route']:
+            structure = StructureData(pymatgen_molecule=outobj.final_structure)
+            self.out('output_structure', structure)
 
-            # in case of main section, don't add prefix
-            output_prefix = ""
-            if section_i > 0:
-                output_prefix = "l1_sec%d_" % section_i
-
-            # in case of geometry optimization, return the geometry as a separated node
-            if 'opt' in parsed_dict['input']['route']:
-                structure = StructureData(
-                    pymatgen_molecule=outobj.final_structure)
-                self.out('%soutput_structure' % output_prefix, structure)
-
-            self.out("%soutput_parameters" % output_prefix,
-                     Dict(dict=parsed_dict))
-
-        # Check for errors in the output log
-        if "Convergence failure -- run terminated." in full_output_log:
-            return self.exit_codes.ERROR_SCF_FAILURE
-
-        # Any other error...
-        if "Error termination" in full_output_log:
-            return self.exit_codes.ERROR_OTHER
+        self.out("output_parameters", Dict(dict=parsed_dict))
 
         return ExitCode(0)

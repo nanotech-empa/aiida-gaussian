@@ -54,7 +54,7 @@ def example_dft(gaussian_code):
 
     builder.structure = structure
     builder.parameters = parameters
-    builder.code = None
+    builder.code = gaussian_code
 
     builder.metadata.options.resources = {
         "num_machines": 1,

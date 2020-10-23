@@ -74,14 +74,6 @@ class GaussianCalculation(CalcJob):
             help="the folder of a completed gaussian calculation",
         )
 
-        spec.input_namespace(
-            "extra_link1_sections",
-            valid_type=Dict,
-            required=False,
-            dynamic=True,
-            help="parameters for extra link1 sections",
-        )
-
         # Turn mpi off by default
         spec.input("metadata.options.withmpi", valid_type=bool, default=False)
 
@@ -155,14 +147,6 @@ class GaussianCalculation(CalcJob):
         except AttributeError:
             input_string = GaussianCalculation._render_input_string_from_params(
                 self.inputs.parameters.get_dict(), None)
-
-        # Parse additional link1 sections
-        if "extra_link1_sections" in self.inputs:
-            for _, l1_params in self.inputs.extra_link1_sections.items():
-                input_string += "--Link1--\n"
-                # The link1 sections don't support their own geometries.
-                input_string += GaussianCalculation._render_input_string_from_params(
-                    l1_params.get_dict(), None)
 
         with open(folder.get_abs_path(self.INPUT_FILE), "w") as out_file:
             out_file.write(input_string)

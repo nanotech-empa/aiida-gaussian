@@ -49,29 +49,6 @@ def example_dft(gaussian_code):
             },
         })
 
-    # Link1 step: population analysis with better basis
-    link1_parameters = Dict(
-        dict={
-            'link0_parameters': {
-                '%chk': 'aiida.chk',
-                '%mem': "%dMB" % memory_mb,
-                '%nprocshared': str(num_cores),
-            },
-            'functional': 'BLYP',
-            'basis_set': '6-31g',
-            'charge': 0,
-            'multiplicity': 3,
-            'route_parameters': {
-                'scf': {
-                    'cdiis': None,
-                },
-                'nosymm': None,
-                'guess': 'read',
-                'geom': 'checkpoint',
-                'sp': None,
-            }
-        })
-
     # Construct process builder
 
     builder = GaussianCalculation.get_builder()
@@ -79,10 +56,6 @@ def example_dft(gaussian_code):
     builder.structure = structure
     builder.parameters = parameters
     builder.code = gaussian_code
-
-    builder.extra_link1_sections = {
-        "extra1": link1_parameters,
-    }
 
     builder.metadata.options.resources = {
         "tot_num_mpiprocs": num_cores,
@@ -102,12 +75,9 @@ def example_dft(gaussian_code):
     print("Running calculation...")
     res, node = run_get_node(builder)
 
-    opt_final_en = res['output_parameters']['output']['final_energy'] * 27.2114
-    triplet_en = res['l1_sec1_output_parameters']['output'][
-        'final_energy'] * 27.2114
+    final_en = res['output_parameters']['output']['final_energy'] * 27.2114
 
-    print("CH4 singlet ground state energy: %.4f eV" % opt_final_en)
-    print("Vertical triplet excitation: %.4f eV" % (triplet_en - opt_final_en))
+    print("Final energy: %.4f eV" % final_en)
 
 
 @click.command('cli')

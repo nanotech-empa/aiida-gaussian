@@ -40,13 +40,17 @@ def example(code, formchk_pk):
 
     builder.metadata.options.resources = {
         "tot_num_mpiprocs": 1,
-        "num_machines": 1,
     }
 
     builder.metadata.options.max_wallclock_seconds = 5 * 60
 
     print("Running calculation...")
-    run(builder)
+    res_dict = run(builder)
+
+    print("Generated the following cubes:")
+    for retr_file in res_dict['retrieved'].list_object_names():
+        if retr_file.endswith(".cube"):
+            print("  " + retr_file)
 
 
 @click.command('cli')

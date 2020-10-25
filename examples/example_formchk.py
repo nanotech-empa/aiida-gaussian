@@ -31,7 +31,6 @@ def example(code, gaussian_pk):
 
     builder.metadata.options.resources = {
         "tot_num_mpiprocs": 1,
-        "num_machines": 1,
     }
 
     builder.metadata.options.max_wallclock_seconds = 1 * 3 * 60

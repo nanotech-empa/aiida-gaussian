@@ -20,7 +20,8 @@
             "gaussian.cubegen = aiida_gaussian.calculations:CubegenCalculation"
         ],
         "aiida.parsers": [
-            "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser"
+            "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser",
+            "cubegen_base_parser = aiida_gaussian.parsers:CubegenBaseParser"
         ]
     },
     "include_package_data": true,

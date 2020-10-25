@@ -29,6 +29,7 @@ class CubegenCalculation(CalcJob):
 
     _DEFAULT_INPUT_FILE = "aiida.fchk"
     _PARENT_FOLDER_NAME = "parent_calc"
+    _DEFAULT_PARSER = "cubegen_base_parser"
 
     @classmethod
     def define(cls, spec):
@@ -59,6 +60,22 @@ class CubegenCalculation(CalcJob):
 
         # Turn mpi off by default
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
+
+        spec.input(
+            "metadata.options.parser_name",
+            valid_type=str,
+            default=cls._DEFAULT_PARSER,
+            non_db=True,
+        )
+
+        spec.outputs.dynamic = True
+
+        # Exit codes
+        spec.exit_code(
+            200,
+            "ERROR_NO_RETRIEVED_FOLDER",
+            message="The retrieved folder data node could not be accessed.",
+        )
 
     # --------------------------------------------------------------------------
     # pylint: disable = too-many-locals

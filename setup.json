@@ -22,6 +22,9 @@
         "aiida.parsers": [
             "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser",
             "cubegen_base_parser = aiida_gaussian.parsers:CubegenBaseParser"
+        ],
+        "aiida.workflows": [
+            "gaussian.cubes = aiida_gaussian.workchains:GaussianCubesWorkChain"
         ]
     },
     "include_package_data": true,

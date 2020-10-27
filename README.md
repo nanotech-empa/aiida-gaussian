@@ -32,6 +32,8 @@ parameters = {
 ```
 In `route_parameters`, specifying `key: None` adds only `key` without the equals sign to the input script.
 
+Parsing of the results is performed with the [cclib](https://github.com/cclib/cclib) library and by default all of its output is stored in the `output_parameters` node.
+
 Additionally, simple plugins to submit the Gaussian utilities `formchk` and `cubegen` are provided.
 
 ## Installation

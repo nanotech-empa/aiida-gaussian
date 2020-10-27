@@ -33,7 +33,9 @@
     "reentry_register": true,
     "install_requires": [
         "aiida-core>=1.0.0,<2.0.0",
-        "pymatgen>=2020.4"
+        "pymatgen>=2020.4",
+	"cclib>=1.6.1",
+	"ase"
     ],
     "extras_require": {
         "testing": [

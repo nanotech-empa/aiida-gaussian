@@ -48,6 +48,9 @@ class GaussianBaseParser(Parser):
 
         data = cclib.io.ccread(log_file_path)
 
+        if data is None:
+            return self.exit_codes.ERROR_OUTPUT_PARSING
+
         property_dict = data.getattributes()
 
         # replace the first delta-energy of nan with zero

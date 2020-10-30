@@ -113,6 +113,11 @@ class GaussianCalculation(CalcJob):
             message="The retrieved folder did not contain the output file.",
         )
         spec.exit_code(
+            220,
+            "ERROR_OUTPUT_PARSING",
+            message="The output file could not be parsed.",
+        )
+        spec.exit_code(
             301,
             "ERROR_SCF_FAILURE",
             message=

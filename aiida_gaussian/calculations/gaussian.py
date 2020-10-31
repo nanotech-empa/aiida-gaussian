@@ -130,7 +130,6 @@ class GaussianCalculation(CalcJob):
         )
 
     # --------------------------------------------------------------------------
-    # pylint: disable = too-many-locals
     def prepare_for_submission(self, folder):
         """
         This is the routine to be called when you want to create

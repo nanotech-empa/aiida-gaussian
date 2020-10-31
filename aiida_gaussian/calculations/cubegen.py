@@ -2,7 +2,7 @@
 """Gaussian input plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import Dict, RemoteData, Str, Int, Bool
+from aiida.orm import Dict, RemoteData, Str, Int, Bool, SinglefileData
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
 
@@ -25,6 +25,15 @@ class CubegenCalculation(CalcJob):
     }
     Each key corresponds to one produced cube.
     key specifies the name of the output node
+
+    In case of "npts": -1, you have to use the stencil file input:
+
+        IFlag X0 Y0 Z0  # Output unit number and initial point.
+        N1 X1 Y1 Z1     # Number of points and step-size in the X-direction.
+        N2 X2 Y2 Z2     # Number of points and step-size in the Y-direction.
+        N3 X3 Y3 Z3      # Number of points and step-size in the Z-direction.
+
+    See more details at https://gaussian.com/cubegen/
     """
 
     _DEFAULT_INPUT_FILE = "aiida.fchk"
@@ -40,16 +49,25 @@ class CubegenCalculation(CalcJob):
             valid_type=Dict,
             required=True,
             help='dictionary containing entries for cubes to be printed.')
+
         spec.input('parent_calc_folder',
                    valid_type=RemoteData,
                    required=True,
                    help='the folder of a containing the .fchk')
+
+        spec.input(
+            "stencil",
+            valid_type=SinglefileData,
+            required=False,
+            help="In case of npts=-1, use this cube specification.",
+        )
 
         spec.input('retrieve_cubes',
                    valid_type=Bool,
                    required=False,
                    default=lambda: Bool(False),
                    help='should the cube be retrieved?')
+
         spec.input(
             "gauss_memdef",
             valid_type=Int,
@@ -78,7 +96,6 @@ class CubegenCalculation(CalcJob):
         )
 
     # --------------------------------------------------------------------------
-    # pylint: disable = too-many-locals
     def prepare_for_submission(self, folder):
 
         # create calculation info
@@ -86,6 +103,14 @@ class CubegenCalculation(CalcJob):
         calcinfo.uuid = self.uuid
         calcinfo.codes_info = []
         calcinfo.retrieve_list = []
+        calcinfo.prepend_text = "export GAUSS_MEMDEF=%dMB\n" % self.inputs.gauss_memdef
+
+        calcinfo.local_copy_list = []
+
+        if "stencil" in self.inputs:
+            calcinfo.local_copy_list.append(
+                (self.inputs.stencil.uuid, self.inputs.stencil.filename,
+                 'stencil.txt'))
 
         for key, params in self.inputs.parameters.get_dict().items():
 
@@ -104,7 +129,18 @@ class CubegenCalculation(CalcJob):
             codeinfo.cmdline_params.append(self._PARENT_FOLDER_NAME + "/" +
                                            self._DEFAULT_INPUT_FILE)
             codeinfo.cmdline_params.append(cube_name)
-            codeinfo.cmdline_params.append(str(npts))
+
+            if npts == -1:
+                if 'stencil' not in self.inputs:
+                    self.report(
+                        "Warning: npts: -1 set but no stencil provided, using -2"
+                    )
+                    codeinfo.cmdline_params.append("-2")
+                else:
+                    codeinfo.cmdline_params.append(str(npts))
+                    codeinfo.stdin_name = "stencil.txt"
+            else:
+                codeinfo.cmdline_params.append(str(npts))
 
             codeinfo.code_uuid = self.inputs.code.uuid
             codeinfo.withmpi = self.inputs.metadata.options.withmpi
@@ -113,12 +149,6 @@ class CubegenCalculation(CalcJob):
 
             if self.inputs.retrieve_cubes.value:
                 calcinfo.retrieve_list.append(cube_name)
-
-        extra_prepend = "\nexport GAUSS_MEMDEF=%dMB\n" % self.inputs.gauss_memdef
-        if not hasattr(calcinfo, 'prepend_text') or not calcinfo.prepend_text:
-            calcinfo.prepend_text = extra_prepend
-        else:
-            calcinfo.prepend_text += extra_prepend
 
         # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []

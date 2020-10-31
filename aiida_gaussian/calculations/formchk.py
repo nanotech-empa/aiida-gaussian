@@ -34,7 +34,6 @@ class FormchkCalculation(CalcJob):
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
 
     # --------------------------------------------------------------------------
-    # pylint: disable = too-many-locals
     def prepare_for_submission(self, folder):
 
         # create code info

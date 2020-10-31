@@ -1,5 +1,9 @@
 import os
 import sys
+import io
+import ase
+
+import numpy as np
 
 from aiida.engine import WorkChain, ToContext
 from aiida.orm import Int, Float, Str, Bool, Code, Dict, List
@@ -42,6 +46,20 @@ class GaussianCubesWorkChain(WorkChain):
                    default=lambda: Int(1),
                    help='Number of virtual orbital cubes to generate')
 
+        spec.input(
+            'edge_space',
+            valid_type=Float,
+            required=False,
+            default=lambda: Float(3.0),
+            help='Extra cube space in addition to molecule bounding box [ang].'
+        )
+
+        spec.input('dx',
+                   valid_type=Float,
+                   required=False,
+                   default=lambda: Float(0.15),
+                   help='Cube file spacing [ang].')
+
         spec.outline(cls.formchk_step, cls.cubegen_step, cls.finalize)
 
         spec.outputs.dynamic = True
@@ -69,12 +87,40 @@ class GaussianCubesWorkChain(WorkChain):
 
         self.report("Running Cubegen")
 
+        gout_params = self.inputs.gaussian_output_params
+
+        # --------------------------------------------------------------
+        # Create the stencil
+
+        ase_atoms = ase.Atoms(gout_params['atomnos'],
+                              positions=gout_params['atomcoords'][0])
+
+        xmin = np.min(ase_atoms.positions[:, 0]) - self.inputs.edge_space.value
+        xmax = np.max(ase_atoms.positions[:, 0]) + self.inputs.edge_space.value
+        ymin = np.min(ase_atoms.positions[:, 1]) - self.inputs.edge_space.value
+        ymax = np.max(ase_atoms.positions[:, 1]) + self.inputs.edge_space.value
+        zmin = np.min(ase_atoms.positions[:, 2]) - self.inputs.edge_space.value
+        zmax = np.max(ase_atoms.positions[:, 2]) + self.inputs.edge_space.value
+
+        geom_center = np.array([xmin + xmax, ymin + ymax, zmin + zmax]) / 2.0
+
+        cell = np.array([xmax - xmin, ymax - ymin, zmax - zmin])
+
+        cell_n = (np.round(cell / self.inputs.dx.value)).astype(int)
+
+        stencil = b"-1 %f %f %f\n" % tuple(geom_center - cell / 2)
+        stencil += b"%d %f 0.0 0.0\n" % (cell_n[0], self.inputs.dx.value)
+        stencil += b"%d 0.0 %f 0.0\n" % (cell_n[1], self.inputs.dx.value)
+        stencil += b"%d 0.0 0.0 %f\n" % (cell_n[2], self.inputs.dx.value)
+
+        # --------------------------------------------------------------
+
         builder = CubegenCalculation.get_builder()
         builder.parent_calc_folder = self.ctx.formchk_node.outputs.remote_folder
         builder.code = self.inputs.cubegen_code
 
         # in the output params, orbital counting starts from 0
-        homos = self.inputs.gaussian_output_params['homos']
+        homos = gout_params['homos']
 
         # use the cubegen convention, where counting starts from 1
         homos = [h + 1 for h in homos]
@@ -87,7 +133,7 @@ class GaussianCubesWorkChain(WorkChain):
         params_dict = {
             "density": {
                 "kind": "Density=SCF",
-                "npts": -2,
+                "npts": -1,
             },
         }
 
@@ -109,7 +155,7 @@ class GaussianCubesWorkChain(WorkChain):
 
                     params_dict["%d_%s" % (i_mo, label)] = {
                         "kind": "MO=%d" % i_mo,
-                        "npts": -2,
+                        "npts": -1,
                     }
 
                 else:
@@ -118,15 +164,16 @@ class GaussianCubesWorkChain(WorkChain):
 
                     params_dict["%d_%s_%s" % (i_mo, spin_letter, label)] = {
                         "kind": "%sMO=%d" % (spin_letter.upper(), i_mo),
-                        "npts": -2,
+                        "npts": -1,
                     }
 
         if len(homos) == 2:
             params_dict['spin'] = {
                 "kind": "Spin=SCF",
-                "npts": -2,
+                "npts": -1,
             }
 
+        builder.stencil = SinglefileData(io.BytesIO(stencil))
         builder.parameters = Dict(dict=params_dict)
         builder.retrieve_cubes = Bool(True)
 

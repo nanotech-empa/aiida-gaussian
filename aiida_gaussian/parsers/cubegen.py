@@ -35,10 +35,14 @@ class CubegenBaseParser(Parser):
                 cube = Cube()
                 cube.read_cube_file(cube_file_path)
 
-                cube_plane = cube.get_plane_above_topmost_atom(2.0)
-
                 out_array = ArrayData()
-                out_array.set_array('z_h2', cube_plane)
+
+                for h in np.arange(0.0, 10.0, 1.0):
+                    try:
+                        cube_plane = cube.get_plane_above_topmost_atom(h)
+                        out_array.set_array('z_h%d' % int(h), cube_plane)
+                    except IndexError:
+                        break
 
                 out_node_label = "cube_" + retr_file.split('.')[0].replace(
                     '-', '').replace('+', '')

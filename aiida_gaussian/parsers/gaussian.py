@@ -96,27 +96,3 @@ class GaussianBaseParser(Parser):
             return self.exit_codes.ERROR_NO_NORMAL_TERMINATION
 
         return None
-
-    def _parse_log_pymatgen(self, log_file_path):
-        """Pymatgen parsing unused: less robust and powerful than cclib"""
-
-        outobj = mgaus.GaussianOutput(log_file_path)
-        parsed_dict = outobj.as_dict()
-
-        # in case of geometry optimization, return the geometry as a separated node
-        if 'opt' in parsed_dict['input']['route']:
-            structure = StructureData(pymatgen_molecule=outobj.final_structure)
-            self.out('output_structure', structure)
-
-        self.out("output_parameters", Dict(dict=parsed_dict))
-
-        with open(log_file_path, 'r') as logf:
-            log_file = logf.read()
-
-        if "Convergence failure -- run terminated." in log_file:
-            return self.exit_codes.ERROR_SCF_FAILURE
-
-        if "Error termination" in log_file:
-            return self.exit_codes.ERROR_OTHER
-
-        return None

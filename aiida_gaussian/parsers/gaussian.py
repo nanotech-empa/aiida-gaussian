@@ -88,9 +88,12 @@ class GaussianBaseParser(Parser):
         if "Convergence failure -- run terminated." in log_file:
             return self.exit_codes.ERROR_SCF_FAILURE
 
-        # Any other error...
         if "Error termination" in log_file:
-            return self.exit_codes.ERROR_OTHER
+            return self.exit_codes.ERROR_TERMINATION
+
+        if ('success' not in property_dict['metadata']
+                or not property_dict['metadata']['success']):
+            return self.exit_codes.ERROR_NO_NORMAL_TERMINATION
 
         return None
 
@@ -113,7 +116,6 @@ class GaussianBaseParser(Parser):
         if "Convergence failure -- run terminated." in log_file:
             return self.exit_codes.ERROR_SCF_FAILURE
 
-        # Any other error...
         if "Error termination" in log_file:
             return self.exit_codes.ERROR_OTHER
 

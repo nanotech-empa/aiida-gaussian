@@ -124,9 +124,15 @@ class GaussianCalculation(CalcJob):
             "The SCF did not converge and the calculation was terminated.",
         )
         spec.exit_code(
-            399,
-            "ERROR_OTHER",
+            390,
+            "ERROR_TERMINATION",
             message="The calculation was terminated due to an error.",
+        )
+        spec.exit_code(
+            391,
+            "ERROR_NO_NORMAL_TERMINATION",
+            message=
+            "The log did not contain 'Normal termination' (probably out of time).",
         )
 
     # --------------------------------------------------------------------------

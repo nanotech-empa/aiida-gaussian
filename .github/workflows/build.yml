@@ -56,14 +56,14 @@ jobs:
     timeout-minutes: 15
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Install python dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[pre-commit,testing]
+        pip install -e .[pre-commit]
         reentry scan -r aiida
     - name: Run pre-commit
       run: |

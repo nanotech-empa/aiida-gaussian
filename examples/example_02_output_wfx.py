@@ -58,6 +58,7 @@ def example_dft(gaussian_code):
     builder.code = gaussian_code
 
     builder.metadata.options.resources = {
+        "num_machines": 1,
         "tot_num_mpiprocs": num_cores,
     }
 

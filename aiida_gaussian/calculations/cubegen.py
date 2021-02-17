@@ -66,7 +66,7 @@ class CubegenCalculation(CalcJob):
                    valid_type=Bool,
                    required=False,
                    default=lambda: Bool(False),
-                   help='should the cube be retrieved?')
+                   help='should the cubes be retrieved?')
 
         spec.input(
             "gauss_memdef",
@@ -86,13 +86,20 @@ class CubegenCalculation(CalcJob):
             non_db=True,
         )
 
+        spec.inputs.dynamic = True
         spec.outputs.dynamic = True
 
         # Exit codes
         spec.exit_code(
-            200,
+            300,
             "ERROR_NO_RETRIEVED_FOLDER",
-            message="The retrieved folder data node could not be accessed.",
+            message="The retrieved folder could not be accessed.",
+        )
+
+        spec.exit_code(
+            301,
+            "ERROR_NO_RETRIEVED_TEMPORARY_FOLDER",
+            message="The retrieved temporary folder could not be accessed.",
         )
 
     # --------------------------------------------------------------------------
@@ -103,6 +110,7 @@ class CubegenCalculation(CalcJob):
         calcinfo.uuid = self.uuid
         calcinfo.codes_info = []
         calcinfo.retrieve_list = []
+        calcinfo.retrieve_temporary_list = []
         calcinfo.prepend_text = "export GAUSS_MEMDEF=%dMB\n" % self.inputs.gauss_memdef
 
         calcinfo.local_copy_list = []
@@ -149,6 +157,8 @@ class CubegenCalculation(CalcJob):
 
             if self.inputs.retrieve_cubes.value:
                 calcinfo.retrieve_list.append(cube_name)
+            else:
+                calcinfo.retrieve_temporary_list.append(cube_name)
 
         # symlink or copy to parent calculation
         calcinfo.remote_symlink_list = []

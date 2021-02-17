@@ -1,5 +1,3 @@
-import os
-import sys
 import io
 import ase
 
@@ -8,7 +6,6 @@ import numpy as np
 from aiida.engine import WorkChain, ToContext
 from aiida.orm import Int, Float, Str, Bool, Code, Dict, List
 from aiida.orm import SinglefileData, StructureData, RemoteData
-from aiida.orm import CalcJobNode
 
 from aiida.plugins import CalculationFactory
 
@@ -59,6 +56,25 @@ class GaussianCubesWorkChain(WorkChain):
                    required=False,
                    default=lambda: Float(0.15),
                    help='Cube file spacing [ang].')
+
+        spec.input('retrieve_cubes',
+                   valid_type=Bool,
+                   required=False,
+                   default=lambda: Bool(False),
+                   help='should the cubes be retrieved?')
+
+        spec.input(
+            "cubegen_parser_name",
+            valid_type=str,
+            default=CubegenCalculation._DEFAULT_PARSER,
+            non_db=True,
+        )
+
+        spec.input("cubegen_parser_params",
+                   valid_type=Dict,
+                   required=False,
+                   default=lambda: Dict(dict={}),
+                   help='Additional parameters to cubegen parser.')
 
         spec.outline(cls.formchk_step, cls.cubegen_step, cls.finalize)
 
@@ -175,7 +191,9 @@ class GaussianCubesWorkChain(WorkChain):
 
         builder.stencil = SinglefileData(io.BytesIO(stencil))
         builder.parameters = Dict(dict=params_dict)
-        builder.retrieve_cubes = Bool(True)
+        builder.retrieve_cubes = self.inputs.retrieve_cubes
+
+        builder.parser_params = self.inputs.cubegen_parser_params
 
         builder.metadata.options.resources = {
             "tot_num_mpiprocs": 1,
@@ -183,6 +201,8 @@ class GaussianCubesWorkChain(WorkChain):
         }
 
         builder.metadata.options.max_wallclock_seconds = 1 * 60 * 60
+
+        builder.metadata.options.parser_name = self.inputs.cubegen_parser_name
 
         future = self.submit(builder)
         return ToContext(cubegen_node=future)

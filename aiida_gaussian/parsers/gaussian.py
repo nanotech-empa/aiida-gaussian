@@ -9,7 +9,7 @@ import numpy as np
 from aiida.parsers import Parser
 from aiida.common import OutputParsingError, NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import Dict, StructureData
+from aiida.orm import Dict, StructureData, Float
 
 import pymatgen.io.gaussian as mgaus
 
@@ -61,6 +61,9 @@ class GaussianBaseParser(Parser):
             ]
 
         self.out("output_parameters", Dict(dict=property_dict))
+
+        if 'scfenergies' in property_dict:
+            self.out("energy_ev", Float(property_dict['scfenergies'][-1]))
 
         # in case of geometry optimization,
         # return the last geometry as a separated node

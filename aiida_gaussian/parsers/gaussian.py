@@ -36,30 +36,22 @@ class GaussianBaseParser(Parser):
         log_file_path = os.path.join(
             out_folder._repository._get_base_folder().abspath, fname)
 
-        exit_code = self._parse_log(log_file_path)
+        exit_code = self._parse_log(log_file_path, self.node.inputs)
 
         if exit_code is not None:
             return exit_code
 
         return ExitCode(0)
 
-    def _parse_log(self, log_file_path):
-        """CCLIB parsing"""
+    def _parse_log(self, log_file_path, inputs):
 
-        data = cclib.io.ccread(log_file_path)
+        # parse with cclib
+        property_dict = self._parse_log_cclib(log_file_path)
 
-        if data is None:
-            return self.exit_codes.ERROR_OUTPUT_PARSING
+        # Extra stuff that cclib doesn't parse
+        property_dict.update(self._parse_log_spin_exp(log_file_path))
 
-        property_dict = data.getattributes()
-
-        # replace the first delta-energy of nan with zero
-        # as nan is not allowed in AiiDA nodes
-        if 'scfvalues' in property_dict:
-            property_dict['scfvalues'] = [
-                np.nan_to_num(svs) for svs in property_dict['scfvalues']
-            ]
-
+        # set output nodes
         self.out("output_parameters", Dict(dict=property_dict))
 
         if 'scfenergies' in property_dict:
@@ -68,7 +60,9 @@ class GaussianBaseParser(Parser):
         # in case of geometry optimization,
         # return the last geometry as a separated node
         if "atomcoords" in property_dict:
-            if len(property_dict["atomcoords"]) > 1:
+
+            if ('opt' in inputs.parameters['route_parameters']
+                    or len(property_dict["atomcoords"]) > 1):
 
                 opt_coords = property_dict["atomcoords"][-1]
 
@@ -99,3 +93,42 @@ class GaussianBaseParser(Parser):
             return self.exit_codes.ERROR_NO_NORMAL_TERMINATION
 
         return None
+
+    def _parse_log_cclib(self, log_file_path):
+
+        data = cclib.io.ccread(log_file_path)
+
+        if data is None:
+            return self.exit_codes.ERROR_OUTPUT_PARSING
+
+        property_dict = data.getattributes()
+
+        # replace the first delta-energy of nan with zero
+        # as nan is not allowed in AiiDA nodes
+        if 'scfvalues' in property_dict:
+            property_dict['scfvalues'] = [
+                np.nan_to_num(svs) for svs in property_dict['scfvalues']
+            ]
+
+        return property_dict
+
+    def _parse_log_spin_exp(self, log_file_path):
+        """ Parse spin expectation values """
+
+        num_pattern = "[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
+
+        spin_pattern = "\n <Sx>= ({0}) <Sy>= ({0}) <Sz>= ({0}) <S\*\*2>= ({0}) S= ({0})".format(
+            num_pattern)
+        spin_list = []
+
+        with open(log_file_path, 'r') as f:
+            for spin_line in re.findall(spin_pattern, f.read()):
+                spin_list.append({
+                    'Sx': float(spin_line[0]),
+                    'Sy': float(spin_line[1]),
+                    'Sz': float(spin_line[2]),
+                    'S**2': float(spin_line[3]),
+                    'S': float(spin_line[4]),
+                })
+
+        return {'spin_expectation_values': spin_list}

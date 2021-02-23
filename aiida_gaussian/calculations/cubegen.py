@@ -31,7 +31,7 @@ class CubegenCalculation(CalcJob):
         IFlag X0 Y0 Z0  # Output unit number and initial point.
         N1 X1 Y1 Z1     # Number of points and step-size in the X-direction.
         N2 X2 Y2 Z2     # Number of points and step-size in the Y-direction.
-        N3 X3 Y3 Z3      # Number of points and step-size in the Z-direction.
+        N3 X3 Y3 Z3     # Number of points and step-size in the Z-direction.
 
     See more details at https://gaussian.com/cubegen/
     """

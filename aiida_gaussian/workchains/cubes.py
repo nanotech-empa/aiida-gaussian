@@ -80,6 +80,14 @@ class GaussianCubesWorkChain(WorkChain):
 
         spec.outputs.dynamic = True
 
+    def _set_resources(self):
+        res = {"tot_num_mpiprocs": 1}
+        if self.inputs.formchk_code.computer.get_scheduler_type() != 'lsf':
+            # LSF scheduler doesn't work with 'num_machines'
+            # other schedulers require num_machines
+            res['num_machines'] = 1
+        return res
+
     def formchk_step(self):
 
         self.report("Running FormChk")
@@ -89,12 +97,9 @@ class GaussianCubesWorkChain(WorkChain):
         builder.parent_calc_folder = self.inputs.gaussian_calc_folder
         builder.code = self.inputs.formchk_code
 
-        builder.metadata.options.resources = {
-            "tot_num_mpiprocs": 1,
-            "num_machines": 1,
-        }
+        builder.metadata.options.resources = self._set_resources()
 
-        builder.metadata.options.max_wallclock_seconds = 1 * 10 * 60
+        builder.metadata.options.max_wallclock_seconds = 1 * 20 * 60
 
         future = self.submit(builder)
         return ToContext(formchk_node=future)
@@ -195,12 +200,9 @@ class GaussianCubesWorkChain(WorkChain):
 
         builder.parser_params = self.inputs.cubegen_parser_params
 
-        builder.metadata.options.resources = {
-            "tot_num_mpiprocs": 1,
-            "num_machines": 1,
-        }
+        builder.metadata.options.resources = self._set_resources()
 
-        builder.metadata.options.max_wallclock_seconds = 1 * 60 * 60
+        builder.metadata.options.max_wallclock_seconds = 2 * 60 * 60
 
         builder.metadata.options.parser_name = self.inputs.cubegen_parser_name
 

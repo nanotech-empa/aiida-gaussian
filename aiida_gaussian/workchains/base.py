@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Base work chain to run a CP2K calculation."""
-
-import os
-import sys
-
-from typing import Optional
+"""Base work chain to run a Gaussian calculation."""
 
 from aiida.common import AttributeDict
 
-from aiida.engine import WorkChain, ToContext, process_handler, ProcessHandlerReport
+from aiida.engine import process_handler, ProcessHandlerReport
 from aiida.engine import BaseRestartWorkChain, while_
-from aiida.orm import Int, Float, Str, Bool, Code, Dict, List
-from aiida.orm import SinglefileData, StructureData, RemoteData
-from aiida.orm import CalcJobNode
+from aiida.orm import Dict
 
 from aiida.plugins import CalculationFactory
 
@@ -51,6 +44,11 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
             'The calculation failed with an unrecoverable SCF convergence error.'
         )
 
+        spec.exit_code(
+            399,
+            'ERROR_UNRECOVERABLE_TERMINATION',
+            message='The calculation failed with an unrecoverable error.')
+
     def setup(self):
         """Call the `setup` of the `BaseRestartWorkChain` and then create the inputs dictionary in `self.ctx.inputs`.
         
@@ -64,7 +62,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
     @process_handler(
         priority=400,
         exit_codes=[GaussianCalculation.exit_codes.ERROR_SCF_FAILURE])
-    def handle_scf_failure(self, calculation):
+    def handle_scf_failure(self, node):
         """
         Try to restart with
         1) scf=(qc)
@@ -82,7 +80,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
             # QC and YQC failed:
             self.report("SCF failed with QC and YQC, giving up...")
             return ProcessHandlerReport(
-                False, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE)
+                True, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE)
 
         new_scf = {}
         # keep the user-set convergence criterion; replace rest
@@ -100,4 +98,17 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         route_params['scf'] = new_scf
         self.ctx.inputs.parameters = Dict(dict=params)
 
-        return ProcessHandlerReport(False)
+        return ProcessHandlerReport(True)
+
+    @process_handler(
+        priority=0,
+        exit_codes=[
+            GaussianCalculation.exit_codes.ERROR_NO_NORMAL_TERMINATION
+        ])
+    def handle_misc_failure(self, node):
+        """
+        By default, the BaseRestartWorkChain restarts any unhandled error once
+        Disable this feature for the exit_code that corresponds to out-of-time
+        """
+        return ProcessHandlerReport(
+            False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)

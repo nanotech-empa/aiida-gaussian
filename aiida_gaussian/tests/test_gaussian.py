@@ -9,7 +9,7 @@ from aiida.orm import Code, Dict, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory
 
-import pymatgen as mg
+from pymatgen.core import Molecule
 
 import os
 from aiida_gaussian import tests
@@ -23,7 +23,7 @@ def test_gaussian(fixture_code):
 
     # structure
     structure = StructureData(
-        pymatgen_molecule=mg.Molecule.from_file(geometry_file))
+        pymatgen_molecule=Molecule.from_file(geometry_file))
 
     num_cores = 1
     memory_mb = 1000

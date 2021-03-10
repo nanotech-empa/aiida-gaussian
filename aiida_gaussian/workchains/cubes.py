@@ -82,7 +82,7 @@ class GaussianCubesWorkChain(WorkChain):
 
     def _set_resources(self):
         res = {"tot_num_mpiprocs": 1}
-        if self.inputs.formchk_code.computer.get_scheduler_type() != 'lsf':
+        if self.inputs.formchk_code.computer.scheduler_type != 'lsf':
             # LSF scheduler doesn't work with 'num_machines'
             # other schedulers require num_machines
             res['num_machines'] = 1

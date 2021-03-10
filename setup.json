@@ -12,7 +12,7 @@
         "Natural Language :: English",
         "Framework :: AiiDA"
     ],
-    "version": "1.1.0",
+    "version": "1.2.0",
     "entry_points": {
         "aiida.calculations": [
             "gaussian = aiida_gaussian.calculations:GaussianCalculation",
@@ -33,7 +33,7 @@
     "reentry_register": true,
     "install_requires": [
         "aiida-core>=1.0.0,<2.0.0",
-        "pymatgen>=2020.4",
+	"pymatgen>=2020.4,<2022.0.0",
 	"cclib>=1.6.1",
 	"ase"
     ],

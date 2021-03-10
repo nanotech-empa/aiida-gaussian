@@ -110,14 +110,33 @@ class GaussianBaseParser(Parser):
                 np.nan_to_num(svs) for svs in property_dict['scfvalues']
             ]
 
+        # separate HOMO-LUMO gap as its own entry
+        if 'moenergies' in property_dict and 'homos' in property_dict:
+            nspin = len(property_dict['homos'])
+            mo_e = np.array(property_dict['moenergies'])
+
+            if nspin == 1:
+                ih_s0 = property_dict['homos'][0]
+                property_dict['gap'] = mo_e[0][ih_s0 + 1] - mo_e[0][ih_s0]
+            elif nspin == 2:
+                ih_s0 = property_dict['homos'][0]
+                ih_s1 = property_dict['homos'][1]
+                max_homo = np.max([mo_e[0, ih_s0], mo_e[1, ih_s1]])
+                min_lumo = np.min([mo_e[0, ih_s0 + 1], mo_e[1, ih_s1 + 1]])
+                # effective gap:
+                property_dict['gap'] = min_lumo - max_homo
+                # gaps for each spin channel separately:
+                property_dict['gap_a'] = mo_e[0, ih_s0 + 1] - mo_e[0, ih_s0]
+                property_dict['gap_b'] = mo_e[1, ih_s1 + 1] - mo_e[1, ih_s1]
+
         return property_dict
 
     def _parse_log_spin_exp(self, log_file_path):
         """ Parse spin expectation values """
 
-        num_pattern = "[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
+        num_pattern = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
 
-        spin_pattern = "\n <Sx>= ({0}) <Sy>= ({0}) <Sz>= ({0}) <S\*\*2>= ({0}) S= ({0})".format(
+        spin_pattern = "\n <Sx>= ({0}) <Sy>= ({0}) <Sz>= ({0}) <S\\*\\*2>= ({0}) S= ({0})".format(
             num_pattern)
         spin_list = []
 

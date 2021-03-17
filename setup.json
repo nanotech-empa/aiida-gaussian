@@ -20,8 +20,9 @@
             "gaussian.cubegen = aiida_gaussian.calculations:CubegenCalculation"
         ],
         "aiida.parsers": [
-            "gaussian_base_parser = aiida_gaussian.parsers:GaussianBaseParser",
-            "cubegen_base_parser = aiida_gaussian.parsers:CubegenBaseParser"
+            "gaussian_base_parser = aiida_gaussian.parsers.gaussian:GaussianBaseParser",
+            "gaussian_advanced_parser = aiida_gaussian.parsers.gaussian:GaussianAdvancedParser",
+            "cubegen_base_parser = aiida_gaussian.parsers.cubegen:CubegenBaseParser"
         ],
         "aiida.workflows": [
             "gaussian.base = aiida_gaussian.workchains:GaussianBaseWorkChain",

@@ -119,6 +119,11 @@ class GaussianCalculation(CalcJob):
             message="The retrieved folder did not contain the output file.",
         )
         spec.exit_code(
+            211,
+            "ERROR_OUTPUT_LOG_READ",
+            message="The retrieved output log could not be read.",
+        )
+        spec.exit_code(
             220,
             "ERROR_OUTPUT_PARSING",
             message="The output file could not be parsed.",

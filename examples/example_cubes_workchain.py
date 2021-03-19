@@ -79,6 +79,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
         n_virt=Int(1),
         dx=Float(0.2),
         edge_space=Float(2.5),
+        retrieve_cubes=Bool(False),
     )
 
     # Plot cubes

@@ -8,7 +8,7 @@ import numpy as np
 from aiida.parsers import Parser
 from aiida.common import NotExistent
 from aiida.engine import ExitCode
-from aiida.orm import ArrayData
+from aiida.orm import ArrayData, FolderData
 
 from aiida_gaussian.utils.cube import Cube
 
@@ -18,12 +18,11 @@ class CubegenBaseParser(Parser):
     def parse(self, **kwargs):
         """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
 
-        retrieved_folder_paths = []
+        retrieved_folders = []
 
         try:
             retrieved_folder = self.retrieved
-            retrieved_folder_paths.append(
-                retrieved_folder._repository._get_base_folder().abspath)
+            retrieved_folders.append(retrieved_folder)
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
@@ -34,30 +33,30 @@ class CubegenBaseParser(Parser):
             try:
                 retrieved_temp_folder_path = kwargs[
                     'retrieved_temporary_folder']
-                retrieved_folder_paths.append(retrieved_temp_folder_path)
+                # create a folderdata object to treat this the same way
+                temp_fd = FolderData(tree=retrieved_temp_folder_path)
+                retrieved_folders.append(temp_fd)
             except KeyError:
-                return self.exit(
-                    self.exit_codes.ERROR_NO_RETRIEVED_TEMPORARY_FOLDER)
+                return self.exit_codes.ERROR_NO_RETRIEVED_TEMPORARY_FOLDER
 
         if "parser_params" in self.node.inputs:
             parser_params = dict(self.node.inputs.parser_params)
         else:
             parser_params = {}
 
-        self._parse_folders(retrieved_folder_paths, parser_params)
+        self._parse_folders(retrieved_folders, parser_params)
 
         return ExitCode(0)
 
-    def _parse_folders(self, retrieved_folder_paths, parser_params):
+    def _parse_folders(self, retrieved_folders, parser_params):
 
-        for folder_path in retrieved_folder_paths:
-            for filename in os.listdir(folder_path):
-                filepath = os.path.join(folder_path, filename)
-
+        for retrieved_fd in retrieved_folders:
+            for filename in retrieved_fd.list_object_names():
                 if filename.endswith(".cube"):
 
                     cube = Cube()
-                    cube.read_cube_file(filepath)
+                    with retrieved_fd.open(filename) as handle:
+                        cube.read_cube(handle)
 
                     out_array = ArrayData()
 

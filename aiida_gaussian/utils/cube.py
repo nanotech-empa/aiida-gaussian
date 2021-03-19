@@ -76,12 +76,15 @@ class Cube:
         f.close()
 
     def read_cube_file(self, filename, read_data=True):
+        with open(filename, 'r') as handle:
+            self.read_cube(handle, read_data)
 
-        f = open(filename, 'r')
-        self.title = f.readline().rstrip()
-        self.comment = f.readline().rstrip()
+    def read_cube(self, filehandle, read_data=True):
 
-        line = f.readline().split()
+        self.title = filehandle.readline().rstrip()
+        self.comment = filehandle.readline().rstrip()
+
+        line = filehandle.readline().split()
         natoms = int(line[0])
 
         section_headers = False
@@ -97,14 +100,14 @@ class Cube:
         self.cell_n = np.empty(3, dtype=int)
         self.cell = np.empty((3, 3))
         for i in range(3):
-            n, x, y, z = [float(s) for s in f.readline().split()]
+            n, x, y, z = [float(s) for s in filehandle.readline().split()]
             self.cell_n[i] = int(n)
             self.cell[i] = n * np.array([x, y, z])
 
         numbers = np.empty(natoms, int)
         positions = np.empty((natoms, 3))
         for i in range(natoms):
-            line = f.readline().split()
+            line = filehandle.readline().split()
             numbers[i] = int(line[0])
             positions[i] = [float(s) for s in line[2:]]
 
@@ -119,19 +122,17 @@ class Cube:
                                  dtype=float)
             cursor = 0
             if section_headers:
-                f.readline()
+                filehandle.readline()
 
-            for i, line in enumerate(f):
+            for i, line in enumerate(filehandle):
                 ls = line.split()
                 self.data[cursor:cursor + len(ls)] = ls
                 cursor += len(ls)
 
             # Option 2: Takes much more memory (but may be faster)
-            #data = np.array(f.read().split(), dtype=float)
+            #data = np.array(filehandle.read().split(), dtype=float)
 
             self.data = self.data.reshape(self.cell_n)
-
-        f.close()
 
     def swapaxes(self, ax1, ax2):
 

@@ -80,6 +80,12 @@ class GaussianCubesWorkChain(WorkChain):
 
         spec.outputs.dynamic = True
 
+        spec.exit_code(
+            390,
+            "ERROR_TERMINATION",
+            message="One or more steps of the work chain failed.",
+        )
+
     def _set_resources(self):
         res = {"tot_num_mpiprocs": 1}
         if self.inputs.formchk_code.computer.scheduler_type != 'lsf':
@@ -87,6 +93,16 @@ class GaussianCubesWorkChain(WorkChain):
             # other schedulers require num_machines
             res['num_machines'] = 1
         return res
+
+    def _check_if_previous_calc_ok(self, prev_calc):
+        if not prev_calc.is_finished_ok:
+            if prev_calc.exit_status is not None and prev_calc.exit_status >= 500:
+                self.report("Warning: previous step: " +
+                            prev_calc.exit_message)
+            else:
+                self.report("ERROR: previous step: " + prev_calc.exit_message)
+                return False
+        return True
 
     def formchk_step(self):
 
@@ -105,6 +121,9 @@ class GaussianCubesWorkChain(WorkChain):
         return ToContext(formchk_node=future)
 
     def cubegen_step(self):
+
+        if not self._check_if_previous_calc_ok(self.ctx.formchk_node):
+            return self.exit_codes.ERROR_TERMINATION  # pylint: disable=no-member
 
         self.report("Running Cubegen")
 
@@ -211,6 +230,10 @@ class GaussianCubesWorkChain(WorkChain):
 
     def finalize(self):
         """ Set the cubegen outputs as the WC outputs  """
+
+        if not self._check_if_previous_calc_ok(self.ctx.cubegen_node):
+            return self.exit_codes.ERROR_TERMINATION  # pylint: disable=no-member
+
         self.report("Setting outputs")
         for cubegen_out in list(self.ctx.cubegen_node.outputs):
             self.out(cubegen_out, self.ctx.cubegen_node.outputs[cubegen_out])

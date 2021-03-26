@@ -14,14 +14,17 @@ class Cube:
     """
     Gaussian cube
     """
-    def __init__(self,
-                 title=None,
-                 comment=None,
-                 ase_atoms=None,
-                 origin=np.array([0.0, 0.0, 0.0]),
-                 cell=None,
-                 cell_n=None,
-                 data=None):
+
+    def __init__(
+        self,
+        title=None,
+        comment=None,
+        ase_atoms=None,
+        origin=np.array([0.0, 0.0, 0.0]),
+        cell=None,
+        cell_n=None,
+        data=None
+    ):
         """
         cell in [au] and (3x3)
         """
@@ -54,13 +57,15 @@ class Cube:
 
         dv_br = self.cell / self.data.shape
 
-        f.write("%5d %12.6f %12.6f %12.6f\n" %
-                (natoms, self.origin[0], self.origin[1], self.origin[2]))
+        f.write(
+            "%5d %12.6f %12.6f %12.6f\n" % (natoms, self.origin[0], self.origin[1], self.origin[2])
+        )
 
         for i in range(3):
             f.write(
                 "%5d %12.6f %12.6f %12.6f\n" %
-                (self.data.shape[i], dv_br[i][0], dv_br[i][1], dv_br[i][2]))
+                (self.data.shape[i], dv_br[i][0], dv_br[i][1], dv_br[i][2])
+            )
 
         if natoms > 0:
 
@@ -68,8 +73,7 @@ class Cube:
             numbers = self.ase_atoms.get_atomic_numbers()
             for i in range(natoms):
                 at_x, at_y, at_z = positions[i]
-                f.write("%5d %12.6f %12.6f %12.6f %12.6f\n" %
-                        (numbers[i], 0.0, at_x, at_y, at_z))
+                f.write("%5d %12.6f %12.6f %12.6f %12.6f\n" % (numbers[i], 0.0, at_x, at_y, at_z))
 
         self.data.tofile(f, sep='\n', format='%12.6e')
 
@@ -117,9 +121,7 @@ class Cube:
 
         if read_data:
             # Option 1: less memory usage but might be slower
-            self.data = np.empty(self.cell_n[0] * self.cell_n[1] *
-                                 self.cell_n[2],
-                                 dtype=float)
+            self.data = np.empty(self.cell_n[0] * self.cell_n[1] * self.cell_n[2], dtype=float)
             cursor = 0
             if section_headers:
                 filehandle.readline()
@@ -140,16 +142,10 @@ class Cube:
         p = self.ase_atoms.positions
         p[:, ax1], p[:, ax2] = p[:, ax2], p[:, ax1].copy()
 
-        self.origin[ax1], self.origin[ax2] = self.origin[ax2], self.origin[
-            ax1].copy()
+        self.origin[ax1], self.origin[ax2] = self.origin[ax2], self.origin[ax1].copy()
 
-        self.cell[:,
-                  ax1], self.cell[:,
-                                  ax2] = self.cell[:,
-                                                   ax2], self.cell[:,
-                                                                   ax1].copy()
-        self.cell[ax1, :], self.cell[ax2, :] = self.cell[ax2, :], self.cell[
-            ax1, :].copy()
+        self.cell[:, ax1], self.cell[:, ax2] = self.cell[:, ax2], self.cell[:, ax1].copy()
+        self.cell[ax1, :], self.cell[ax2, :] = self.cell[ax2, :], self.cell[ax1, :].copy()
 
         self.data = np.swapaxes(self.data, ax1, ax2)
 
@@ -164,8 +160,8 @@ class Cube:
         plane_z = (height + topmost_atom_z) * ang_2_bohr - self.origin[axis]
 
         plane_index = int(
-            np.round(plane_z / self.cell[axis, axis] *
-                     np.shape(self.data)[axis] - 0.499))
+            np.round(plane_z / self.cell[axis, axis] * np.shape(self.data)[axis] - 0.499)
+        )
 
         if axis == 0:
             return self.data[plane_index, :, :]
@@ -177,20 +173,26 @@ class Cube:
     def get_x_index(self, x_ang):
         # returns the index value for a given x coordinate in angstrom
         return int(
-            np.round((x_ang * ang_2_bohr - self.origin[0]) / self.cell[0, 0] *
-                     np.shape(self.data)[0]))
+            np.round(
+                (x_ang * ang_2_bohr - self.origin[0]) / self.cell[0, 0] * np.shape(self.data)[0]
+            )
+        )
 
     def get_y_index(self, y_ang):
         # returns the index value for a given y coordinate in angstrom
         return int(
-            np.round((y_ang * ang_2_bohr - self.origin[1]) / self.cell[1, 1] *
-                     np.shape(self.data)[1]))
+            np.round(
+                (y_ang * ang_2_bohr - self.origin[1]) / self.cell[1, 1] * np.shape(self.data)[1]
+            )
+        )
 
     def get_z_index(self, z_ang):
         # returns the index value for a given z coordinate in angstrom
         return int(
-            np.round((z_ang * ang_2_bohr - self.origin[2]) / self.cell[2, 2] *
-                     np.shape(self.data)[2]))
+            np.round(
+                (z_ang * ang_2_bohr - self.origin[2]) / self.cell[2, 2] * np.shape(self.data)[2]
+            )
+        )
 
     @property
     def dv(self):
@@ -211,25 +213,25 @@ class Cube:
     def x_arr_au(self):
         """ in [au] """
         return np.arange(
-            self.origin[0],
-            self.origin[0] + (self.cell_n[0] - 0.5) * self.dv_au[0, 0],
-            self.dv_au[0, 0])
+            self.origin[0], self.origin[0] + (self.cell_n[0] - 0.5) * self.dv_au[0, 0],
+            self.dv_au[0, 0]
+        )
 
     @property
     def y_arr_au(self):
         """ in [au] """
         return np.arange(
-            self.origin[1],
-            self.origin[1] + (self.cell_n[1] - 0.5) * self.dv_au[1, 1],
-            self.dv_au[1, 1])
+            self.origin[1], self.origin[1] + (self.cell_n[1] - 0.5) * self.dv_au[1, 1],
+            self.dv_au[1, 1]
+        )
 
     @property
     def z_arr_au(self):
         """ in [au] """
         return np.arange(
-            self.origin[2],
-            self.origin[2] + (self.cell_n[2] - 0.5) * self.dv_au[2, 2],
-            self.dv_au[2, 2])
+            self.origin[2], self.origin[2] + (self.cell_n[2] - 0.5) * self.dv_au[2, 2],
+            self.dv_au[2, 2]
+        )
 
     @property
     def x_arr_ang(self):

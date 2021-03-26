@@ -15,6 +15,7 @@ from aiida_gaussian.utils.cube import Cube
 
 class CubegenBaseParser(Parser):
     """Cubegen parser that creates 2d slices of the generated cube files"""
+
     def parse(self, **kwargs):
         """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
 
@@ -26,13 +27,11 @@ class CubegenBaseParser(Parser):
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        retrieve_temp_list_input = self.node.get_attribute(
-            'retrieve_temporary_list', None)
+        retrieve_temp_list_input = self.node.get_attribute('retrieve_temporary_list', None)
         # If temporary files were specified, check that we have them
         if retrieve_temp_list_input:
             try:
-                retrieved_temp_folder_path = kwargs[
-                    'retrieved_temporary_folder']
+                retrieved_temp_folder_path = kwargs['retrieved_temporary_folder']
                 # create a folderdata object to treat this the same way
                 temp_fd = FolderData(tree=retrieved_temp_folder_path)
                 retrieved_folders.append(temp_fd)
@@ -67,6 +66,6 @@ class CubegenBaseParser(Parser):
                         except IndexError:
                             break
 
-                    out_node_label = "cube_" + filename.split('.')[0].replace(
-                        '-', '').replace('+', '')
+                    out_node_label = "cube_" + filename.split('.')[0].replace('-',
+                                                                              '').replace('+', '')
                     self.out(out_node_label, out_array)

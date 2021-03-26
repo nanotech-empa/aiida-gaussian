@@ -20,15 +20,19 @@ class FormchkCalculation(CalcJob):
     def define(cls, spec):
         super(FormchkCalculation, cls).define(spec)
 
-        spec.input('parent_calc_folder',
-                   valid_type=RemoteData,
-                   required=True,
-                   help='the folder of a containing the .chk')
-        spec.input('chk_name',
-                   valid_type=Str,
-                   required=False,
-                   default=lambda: Str(cls._DEFAULT_INPUT_FILE),
-                   help="name of the checkpoint file")
+        spec.input(
+            'parent_calc_folder',
+            valid_type=RemoteData,
+            required=True,
+            help='the folder of a containing the .chk'
+        )
+        spec.input(
+            'chk_name',
+            valid_type=Str,
+            required=False,
+            default=lambda: Str(cls._DEFAULT_INPUT_FILE),
+            help="name of the checkpoint file"
+        )
 
         # Turn mpi off by default
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
@@ -40,8 +44,7 @@ class FormchkCalculation(CalcJob):
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid
         codeinfo.cmdline_params = [
-            self._PARENT_FOLDER_NAME + "/" + self.inputs.chk_name.value,
-            self._DEFAULT_OUTPUT_FILE
+            self._PARENT_FOLDER_NAME + "/" + self.inputs.chk_name.value, self._DEFAULT_OUTPUT_FILE
         ]
         codeinfo.withmpi = self.inputs.metadata.options.withmpi
 

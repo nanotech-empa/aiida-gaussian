@@ -14,6 +14,7 @@ CubegenCalculation = CalculationFactory('gaussian.cubegen')
 
 
 class GaussianCubesWorkChain(WorkChain):
+
     @classmethod
     def define(cls, spec):
         super().define(spec)
@@ -21,27 +22,35 @@ class GaussianCubesWorkChain(WorkChain):
         spec.input("formchk_code", valid_type=Code)
         spec.input("cubegen_code", valid_type=Code)
 
-        spec.input('gaussian_calc_folder',
-                   valid_type=RemoteData,
-                   required=True,
-                   help='The gaussian calculation output folder.')
+        spec.input(
+            'gaussian_calc_folder',
+            valid_type=RemoteData,
+            required=True,
+            help='The gaussian calculation output folder.'
+        )
 
-        spec.input('gaussian_output_params',
-                   valid_type=Dict,
-                   required=True,
-                   help='The gaussian calculation output parameters.')
+        spec.input(
+            'gaussian_output_params',
+            valid_type=Dict,
+            required=True,
+            help='The gaussian calculation output parameters.'
+        )
 
-        spec.input('n_occ',
-                   valid_type=Int,
-                   required=False,
-                   default=lambda: Int(1),
-                   help='Number of occupied orbital cubes to generate')
+        spec.input(
+            'n_occ',
+            valid_type=Int,
+            required=False,
+            default=lambda: Int(1),
+            help='Number of occupied orbital cubes to generate'
+        )
 
-        spec.input('n_virt',
-                   valid_type=Int,
-                   required=False,
-                   default=lambda: Int(1),
-                   help='Number of virtual orbital cubes to generate')
+        spec.input(
+            'n_virt',
+            valid_type=Int,
+            required=False,
+            default=lambda: Int(1),
+            help='Number of virtual orbital cubes to generate'
+        )
 
         spec.input(
             'edge_space',
@@ -51,17 +60,21 @@ class GaussianCubesWorkChain(WorkChain):
             help='Extra cube space in addition to molecule bounding box [ang].'
         )
 
-        spec.input('dx',
-                   valid_type=Float,
-                   required=False,
-                   default=lambda: Float(0.15),
-                   help='Cube file spacing [ang].')
+        spec.input(
+            'dx',
+            valid_type=Float,
+            required=False,
+            default=lambda: Float(0.15),
+            help='Cube file spacing [ang].'
+        )
 
-        spec.input('retrieve_cubes',
-                   valid_type=Bool,
-                   required=False,
-                   default=lambda: Bool(False),
-                   help='should the cubes be retrieved?')
+        spec.input(
+            'retrieve_cubes',
+            valid_type=Bool,
+            required=False,
+            default=lambda: Bool(False),
+            help='should the cubes be retrieved?'
+        )
 
         spec.input(
             "cubegen_parser_name",
@@ -70,11 +83,13 @@ class GaussianCubesWorkChain(WorkChain):
             non_db=True,
         )
 
-        spec.input("cubegen_parser_params",
-                   valid_type=Dict,
-                   required=False,
-                   default=lambda: Dict(dict={}),
-                   help='Additional parameters to cubegen parser.')
+        spec.input(
+            "cubegen_parser_params",
+            valid_type=Dict,
+            required=False,
+            default=lambda: Dict(dict={}),
+            help='Additional parameters to cubegen parser.'
+        )
 
         spec.outline(cls.formchk_step, cls.cubegen_step, cls.finalize)
 
@@ -97,10 +112,9 @@ class GaussianCubesWorkChain(WorkChain):
     def _check_if_previous_calc_ok(self, prev_calc):
         if not prev_calc.is_finished_ok:
             if prev_calc.exit_status is not None and prev_calc.exit_status >= 500:
-                self.report("Warning: previous step: " +
-                            prev_calc.exit_message)
+                self.report("Warning: previous step: " + str(prev_calc.exit_message))
             else:
-                self.report("ERROR: previous step: " + prev_calc.exit_message)
+                self.report("ERROR: previous step: " + str(prev_calc.exit_message))
                 return False
         return True
 
@@ -132,8 +146,7 @@ class GaussianCubesWorkChain(WorkChain):
         # --------------------------------------------------------------
         # Create the stencil
 
-        ase_atoms = ase.Atoms(gout_params['atomnos'],
-                              positions=gout_params['atomcoords'][0])
+        ase_atoms = ase.Atoms(gout_params['atomnos'], positions=gout_params['atomcoords'][0])
 
         xmin = np.min(ase_atoms.positions[:, 0]) - self.inputs.edge_space.value
         xmax = np.max(ase_atoms.positions[:, 0]) + self.inputs.edge_space.value

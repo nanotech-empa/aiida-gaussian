@@ -18,6 +18,8 @@ import cclib
 import re
 import ase
 
+NUM_RE = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
+
 
 class GaussianBaseParser(Parser):
     """
@@ -60,6 +62,8 @@ class GaussianBaseParser(Parser):
         if property_dict is None:
             return self.exit_codes.ERROR_OUTPUT_PARSING
 
+        property_dict.update(self._parse_electron_numbers(log_file_string))
+
         # set output nodes
         self.out("output_parameters", Dict(dict=property_dict))
 
@@ -73,6 +77,15 @@ class GaussianBaseParser(Parser):
             return exit_code
 
         return None
+
+    def _parse_electron_numbers(self, log_file_string):
+
+        find_el = re.search(r"({0})\s*alpha electrons\s*({0}) beta".format(NUM_RE), log_file_string)
+
+        if find_el is not None:
+            return {'num_electrons': [int(e) for e in find_el.groups()]}
+        else:
+            return {}
 
     def _parse_log_cclib(self, log_file_string):
 
@@ -143,6 +156,8 @@ class GaussianAdvancedParser(GaussianBaseParser):
         if property_dict is None:
             return self.exit_codes.ERROR_OUTPUT_PARSING
 
+        property_dict.update(self._parse_electron_numbers(log_file_string))
+
         # Add spin expectations in property_dict
         property_dict.update(self._parse_log_spin_exp(log_file_string))
 
@@ -166,10 +181,8 @@ class GaussianAdvancedParser(GaussianBaseParser):
     def _parse_log_spin_exp(self, log_file_string):
         """ Parse spin expectation values """
 
-        num_pattern = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
-
         spin_pattern = "\n <Sx>= ({0}) <Sy>= ({0}) <Sz>= ({0}) <S\\*\\*2>= ({0}) S= ({0})".format(
-            num_pattern
+            NUM_RE
         )
         spin_list = []
 

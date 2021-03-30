@@ -24,10 +24,8 @@ version = aiida_gaussian.__version__
 
 if version != setup_content['version']:
     print("Version number mismatch detected:")
-    print("Version number in '{}': {}".format(setup_fname,
-                                              setup_content['version']))
-    print("Version number in '{}/__init__.py': {}".format(
-        'aiida_gaussian', version))
+    print("Version number in '{}': {}".format(setup_fname, setup_content['version']))
+    print("Version number in '{}/__init__.py': {}".format('aiida_gaussian', version))
     sys.exit(1)
 
 # Overwrite version in setup.json

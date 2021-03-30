@@ -24,8 +24,7 @@ def example_dft(gaussian_code):
     print("Testing Gaussian Input Creation")
 
     # structure
-    structure = StructureData(
-        pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
     num_cores = 2
     memory_mb = 200
@@ -47,7 +46,8 @@ def example_dft(gaussian_code):
             'input_parameters': {
                 'output.wfx': None
             },
-        })
+        }
+    )
 
     # Construct process builder
 

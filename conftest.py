@@ -15,10 +15,13 @@ def fixture_localhost(aiida_localhost):
 @pytest.fixture
 def fixture_code(fixture_localhost):
     """Return a `Code` instance configured to run calculations of given entry point on localhost `Computer`."""
+
     def _fixture_code(entry_point_name):
         from aiida.orm import Code
-        return Code(input_plugin_name=entry_point_name,
-                    remote_computer_exec=[fixture_localhost, '/bin/true'])
+        return Code(
+            input_plugin_name=entry_point_name,
+            remote_computer_exec=[fixture_localhost, '/bin/true']
+        )
 
     return _fixture_code
 
@@ -27,6 +30,5 @@ def fixture_code(fixture_localhost):
 def gaussian_code(aiida_local_code_factory):
     """Get a gaussian code.
     """
-    gaussian_code = aiida_local_code_factory(executable='g09',
-                                             entry_point='gaussian')
+    gaussian_code = aiida_local_code_factory(executable='g09', entry_point='gaussian')
     return gaussian_code

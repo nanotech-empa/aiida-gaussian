@@ -22,8 +22,7 @@ def example_dft(gaussian_code):
     """Run a simple two-step gaussian calculation"""
 
     # structure
-    structure = StructureData(
-        pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
     num_cores = 1
     memory_mb = 200
@@ -47,7 +46,8 @@ def example_dft(gaussian_code):
                 'nosymm': None,
                 'opt': None,
             },
-        })
+        }
+    )
 
     # Construct process builder
 
@@ -70,8 +70,7 @@ def example_dft(gaussian_code):
     print("Running calculation...")
     res, node = run_get_node(builder)
 
-    print("Final scf energy: %.4f" %
-          res['output_parameters']['scfenergies'][-1])
+    print("Final scf energy: %.4f" % res['output_parameters']['scfenergies'][-1])
 
 
 @click.command('cli')

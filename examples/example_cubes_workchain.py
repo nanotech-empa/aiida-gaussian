@@ -56,7 +56,8 @@ def example(gaussian_code, formchk_code, cubegen_code):
                 'nosymm': None,
                 'sp': None,
             },
-        })
+        }
+    )
     builder.metadata.options.resources = {
         "tot_num_mpiprocs": num_cores,
         "num_machines": 1,
@@ -102,9 +103,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
 def cli(gaussian_codelabel, formchk_codelabel, cubegen_codelabel):
     """Click interface"""
     codes = []
-    for codelabel in [
-            gaussian_codelabel, formchk_codelabel, cubegen_codelabel
-    ]:
+    for codelabel in [gaussian_codelabel, formchk_codelabel, cubegen_codelabel]:
         try:
             codes.append(Code.get_from_string(codelabel))
         except NotExistent:

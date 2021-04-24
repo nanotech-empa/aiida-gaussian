@@ -42,7 +42,8 @@ class GaussianCalculation(CalcJob):
     # Defaults
     INPUT_FILE = "aiida.inp"
     OUTPUT_FILE = "aiida.out"
-    DEFAULT_PARSER = "gaussian_base_parser"
+    PARENT_FOLDER_NAME = "parent_calc"
+    DEFAULT_PARSER = "gaussian.base"
 
     @classmethod
     def define(cls, spec):
@@ -192,7 +193,7 @@ class GaussianCalculation(CalcJob):
         if "parent_calc_folder" in self.inputs:
             comp_uuid = self.inputs.parent_calc_folder.computer.uuid
             remote_path = self.inputs.parent_calc_folder.get_remote_path()
-            copy_info = (comp_uuid, remote_path, "parent_calc")
+            copy_info = (comp_uuid, remote_path, self.PARENT_FOLDER_NAME)
             if (self.inputs.code.computer.uuid == comp_uuid):
                 # if running on the same computer - make a symlink
                 # if not - copy the folder

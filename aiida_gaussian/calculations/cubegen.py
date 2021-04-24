@@ -36,9 +36,9 @@ class CubegenCalculation(CalcJob):
     See more details at https://gaussian.com/cubegen/
     """
 
-    _DEFAULT_INPUT_FILE = "aiida.fchk"
-    _PARENT_FOLDER_NAME = "parent_calc"
-    _DEFAULT_PARSER = "cubegen_base_parser"
+    DEFAULT_INPUT_FILE = "aiida.fchk"
+    PARENT_FOLDER_NAME = "parent_calc"
+    DEFAULT_PARSER = "gaussian.cubegen_base"
 
     @classmethod
     def define(cls, spec):
@@ -87,7 +87,7 @@ class CubegenCalculation(CalcJob):
         spec.input(
             "metadata.options.parser_name",
             valid_type=str,
-            default=cls._DEFAULT_PARSER,
+            default=cls.DEFAULT_PARSER,
             non_db=True,
         )
 
@@ -139,9 +139,7 @@ class CubegenCalculation(CalcJob):
                 str(self.inputs.metadata.options.resources['tot_num_mpiprocs'])
             )
             codeinfo.cmdline_params.append(kind_str)
-            codeinfo.cmdline_params.append(
-                self._PARENT_FOLDER_NAME + "/" + self._DEFAULT_INPUT_FILE
-            )
+            codeinfo.cmdline_params.append(self.PARENT_FOLDER_NAME + "/" + self.DEFAULT_INPUT_FILE)
             codeinfo.cmdline_params.append(cube_name)
 
             if npts == -1:
@@ -169,7 +167,7 @@ class CubegenCalculation(CalcJob):
         calcinfo.remote_copy_list = []
         comp_uuid = self.inputs.parent_calc_folder.computer.uuid
         remote_path = self.inputs.parent_calc_folder.get_remote_path()
-        copy_info = (comp_uuid, remote_path, self._PARENT_FOLDER_NAME)
+        copy_info = (comp_uuid, remote_path, self.PARENT_FOLDER_NAME)
         if self.inputs.code.computer.uuid == comp_uuid:
             # if running on the same computer - make a symlink
             # if not - copy the folder

@@ -20,9 +20,9 @@
             "gaussian.cubegen = aiida_gaussian.calculations:CubegenCalculation"
         ],
         "aiida.parsers": [
-            "gaussian_base_parser = aiida_gaussian.parsers.gaussian:GaussianBaseParser",
-            "gaussian_advanced_parser = aiida_gaussian.parsers.gaussian:GaussianAdvancedParser",
-            "cubegen_base_parser = aiida_gaussian.parsers.cubegen:CubegenBaseParser"
+            "gaussian.base = aiida_gaussian.parsers.gaussian:GaussianBaseParser",
+            "gaussian.advanced = aiida_gaussian.parsers.gaussian:GaussianAdvancedParser",
+            "gaussian.cubegen_base = aiida_gaussian.parsers.cubegen:CubegenBaseParser"
         ],
         "aiida.workflows": [
             "gaussian.base = aiida_gaussian.workchains:GaussianBaseWorkChain",
@@ -30,13 +30,15 @@
         ]
     },
     "include_package_data": true,
-    "setup_requires": ["reentry"],
+    "setup_requires": [
+        "reentry"
+    ],
     "reentry_register": true,
     "install_requires": [
         "aiida-core>=1.0.0,<2.0.0",
-	"pymatgen>=2020.4,<2022.0.0",
-	"cclib>=1.6.1",
-	"ase"
+        "pymatgen>=2020.4,<2022.0.0",
+        "cclib>=1.6.1",
+        "ase"
     ],
     "extras_require": {
         "testing": [

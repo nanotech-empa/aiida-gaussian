@@ -79,7 +79,7 @@ class GaussianCubesWorkChain(WorkChain):
         spec.input(
             "cubegen_parser_name",
             valid_type=str,
-            default=CubegenCalculation._DEFAULT_PARSER,
+            default=CubegenCalculation.DEFAULT_PARSER,
             non_db=True,
         )
 

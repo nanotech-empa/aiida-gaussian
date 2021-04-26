@@ -15,7 +15,7 @@ import click
 import matplotlib.pyplot as plt
 
 from aiida.engine import run, run_get_node
-from aiida.orm import Code, Dict, load_node, Bool, StructureData
+from aiida.orm import Code, Dict, Int, Float, Bool, StructureData
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
@@ -70,7 +70,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
 
     # Run cubes workchain
 
-    wc_res, wc_node = run_get_node(
+    _, wc_node = run_get_node(
         GaussianCubesWorkChain,
         formchk_code=formchk_code,
         cubegen_code=cubegen_code,
@@ -83,14 +83,19 @@ def example(gaussian_code, formchk_code, cubegen_code):
         retrieve_cubes=Bool(False),
     )
 
+    assert wc_node.is_finished_ok
+
     # Plot cubes
-    for outp in sorted(list(wc_node.outputs), reverse=True):
-        if outp.startswith("cube_"):
-            filename = "./%s.png" % outp
-            arr = wc_node.outputs[outp].get_array('z_h2').T
-            amax = np.max(np.abs(arr))
-            plt.imshow(arr, vmin=-amax, vmax=amax, cmap='seismic')
+    res = wc_node.outputs['cube_planes_array']
+    h_arr = res.get_array('h_arr')
+    for aname in res.get_arraynames():
+        if aname.startswith("cube_"):
+            h = h_arr[0]
+            data = res.get_array(aname)[:, :, 0].T
+            amax = np.max(np.abs(data))
+            plt.imshow(data, vmin=-amax, vmax=amax, cmap='seismic')
             plt.axis('off')
+            filename = f"./{aname}_{h}.png"
             plt.savefig(filename, dpi=200, bbox_inches='tight')
             plt.close()
             print("Saved %s!" % filename)

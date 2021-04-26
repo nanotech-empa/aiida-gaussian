@@ -3,16 +3,14 @@ Routines regarding gaussian cube files
 """
 
 import numpy as np
-
 import ase
 
-ang_2_bohr = 1.0 / 0.52917721067
-hart_2_ev = 27.21138602
+ANG_TO_BOHR = 1.8897259886
 
 
 class Cube:
     """
-    Gaussian cube
+    Gaussian cube format
     """
 
     def __init__(
@@ -25,8 +23,10 @@ class Cube:
         cell_n=None,
         data=None
     ):
+        # pylint: disable=too-many-arguments
         """
         cell in [au] and (3x3)
+        origin in [au]
         """
         self.title = title
         self.comment = comment
@@ -37,7 +37,70 @@ class Cube:
         if data is not None:
             self.cell_n = data.shape
         else:
-            self.cell_n = None
+            self.cell_n = cell_n
+
+    @classmethod
+    def from_file_handle(cls, filehandle, read_data=True):
+        # pylint: disable=too-many-locals
+        f = filehandle
+        c = cls()
+        c.title = f.readline().rstrip()
+        c.comment = f.readline().rstrip()
+
+        line = f.readline().split()
+        natoms = int(line[0])
+
+        section_headers = False
+        if natoms < 0:
+            # A negative number of atoms usually indicates that there
+            # are multiple data sections and each of those have a header
+            natoms = -natoms
+            section_headers = True
+
+        c.origin = np.array(line[1:], dtype=float)
+
+        c.cell_n = np.empty(3, dtype=int)
+        c.cell = np.empty((3, 3))
+        for i in range(3):
+            n, x, y, z = [float(s) for s in f.readline().split()]
+            c.cell_n[i] = int(n)
+            c.cell[i] = n * np.array([x, y, z])
+
+        numbers = np.empty(natoms, int)
+        positions = np.empty((natoms, 3))
+        for i in range(natoms):
+            line = f.readline().split()
+            numbers[i] = int(line[0])
+            positions[i] = [float(s) for s in line[2:]]
+
+        positions /= ANG_TO_BOHR  # convert from bohr to ang
+
+        c.ase_atoms = ase.Atoms(numbers=numbers, positions=positions)
+
+        if read_data:
+            # Option 1: less memory usage but might be slower
+            c.data = np.empty(c.cell_n[0] * c.cell_n[1] * c.cell_n[2], dtype=float)
+            cursor = 0
+            if section_headers:
+                f.readline()
+
+            for i, line in enumerate(f):
+                ls = line.split()
+                c.data[cursor:cursor + len(ls)] = ls
+                cursor += len(ls)
+
+            # Option 2: Takes much more memory (but may be faster)
+            #data = np.array(f.read().split(), dtype=float)
+
+            c.data = c.data.reshape(c.cell_n)
+
+        return c
+
+    @classmethod
+    def from_file(cls, filepath, read_data=True):
+        with open(filepath, 'r') as f:
+            c = cls.from_file_handle(f, read_data=read_data)
+        return c
 
     def write_cube_file(self, filename):
 
@@ -69,7 +132,7 @@ class Cube:
 
         if natoms > 0:
 
-            positions = self.ase_atoms.positions * ang_2_bohr
+            positions = self.ase_atoms.positions * ANG_TO_BOHR
             numbers = self.ase_atoms.get_atomic_numbers()
             for i in range(natoms):
                 at_x, at_y, at_z = positions[i]
@@ -79,73 +142,15 @@ class Cube:
 
         f.close()
 
-    def read_cube_file(self, filename, read_data=True):
-        with open(filename, 'r') as handle:
-            self.read_cube(handle, read_data)
-
-    def read_cube(self, filehandle, read_data=True):
-
-        self.title = filehandle.readline().rstrip()
-        self.comment = filehandle.readline().rstrip()
-
-        line = filehandle.readline().split()
-        natoms = int(line[0])
-
-        section_headers = False
-        if natoms < 0:
-            #print("Warning: the cube %s has negative number of atoms")
-            #print("         meaning that there could be multiple data sections")
-            #print("         and each of those will have a header")
-            natoms = -natoms
-            section_headers = True
-
-        self.origin = np.array(line[1:], dtype=float)
-
-        self.cell_n = np.empty(3, dtype=int)
-        self.cell = np.empty((3, 3))
-        for i in range(3):
-            n, x, y, z = [float(s) for s in filehandle.readline().split()]
-            self.cell_n[i] = int(n)
-            self.cell[i] = n * np.array([x, y, z])
-
-        numbers = np.empty(natoms, int)
-        positions = np.empty((natoms, 3))
-        for i in range(natoms):
-            line = filehandle.readline().split()
-            numbers[i] = int(line[0])
-            positions[i] = [float(s) for s in line[2:]]
-
-        positions /= ang_2_bohr  # convert from bohr to ang
-
-        self.ase_atoms = ase.Atoms(numbers=numbers, positions=positions)
-
-        if read_data:
-            # Option 1: less memory usage but might be slower
-            self.data = np.empty(self.cell_n[0] * self.cell_n[1] * self.cell_n[2], dtype=float)
-            cursor = 0
-            if section_headers:
-                filehandle.readline()
-
-            for i, line in enumerate(filehandle):
-                ls = line.split()
-                self.data[cursor:cursor + len(ls)] = ls
-                cursor += len(ls)
-
-            # Option 2: Takes much more memory (but may be faster)
-            #data = np.array(filehandle.read().split(), dtype=float)
-
-            self.data = self.data.reshape(self.cell_n)
-
     def swapaxes(self, ax1, ax2):
 
-        # Atomic positions: careful, the ase cell is not modified
         p = self.ase_atoms.positions
         p[:, ax1], p[:, ax2] = p[:, ax2], p[:, ax1].copy()
 
-        self.origin[ax1], self.origin[ax2] = self.origin[ax2], self.origin[ax1].copy()
+        self.origin[ax1], self.origin[ax2] = (self.origin[ax2], self.origin[ax1].copy())
 
-        self.cell[:, ax1], self.cell[:, ax2] = self.cell[:, ax2], self.cell[:, ax1].copy()
-        self.cell[ax1, :], self.cell[ax2, :] = self.cell[ax2, :], self.cell[ax1, :].copy()
+        self.cell[:, ax1], self.cell[:, ax2] = (self.cell[:, ax2], self.cell[:, ax1].copy())
+        self.cell[ax1, :], self.cell[ax2, :] = (self.cell[ax2, :], self.cell[ax1, :].copy())
 
         self.data = np.swapaxes(self.data, ax1, ax2)
 
@@ -157,7 +162,7 @@ class Cube:
         height in [angstrom]
         """
         topmost_atom_z = np.max(self.ase_atoms.positions[:, axis])  # Angstrom
-        plane_z = (height + topmost_atom_z) * ang_2_bohr - self.origin[axis]
+        plane_z = (height + topmost_atom_z) * ANG_TO_BOHR - self.origin[axis]
 
         plane_index = int(
             np.round(plane_z / self.cell[axis, axis] * np.shape(self.data)[axis] - 0.499)
@@ -165,16 +170,15 @@ class Cube:
 
         if axis == 0:
             return self.data[plane_index, :, :]
-        elif axis == 1:
+        if axis == 1:
             return self.data[:, plane_index, :]
-        else:
-            return self.data[:, :, plane_index]
+        return self.data[:, :, plane_index]
 
     def get_x_index(self, x_ang):
         # returns the index value for a given x coordinate in angstrom
         return int(
             np.round(
-                (x_ang * ang_2_bohr - self.origin[0]) / self.cell[0, 0] * np.shape(self.data)[0]
+                (x_ang * ANG_TO_BOHR - self.origin[0]) / self.cell[0, 0] * np.shape(self.data)[0]
             )
         )
 
@@ -182,7 +186,7 @@ class Cube:
         # returns the index value for a given y coordinate in angstrom
         return int(
             np.round(
-                (y_ang * ang_2_bohr - self.origin[1]) / self.cell[1, 1] * np.shape(self.data)[1]
+                (y_ang * ANG_TO_BOHR - self.origin[1]) / self.cell[1, 1] * np.shape(self.data)[1]
             )
         )
 
@@ -190,19 +194,19 @@ class Cube:
         # returns the index value for a given z coordinate in angstrom
         return int(
             np.round(
-                (z_ang * ang_2_bohr - self.origin[2]) / self.cell[2, 2] * np.shape(self.data)[2]
+                (z_ang * ANG_TO_BOHR - self.origin[2]) / self.cell[2, 2] * np.shape(self.data)[2]
             )
         )
 
     @property
     def dv(self):
         """ in [ang] """
-        return self.cell / self.cell_n / ang_2_bohr
+        return self.cell / self.cell_n / ANG_TO_BOHR
 
     @property
     def dv_ang(self):
         """ in [ang] """
-        return self.cell / self.cell_n / ang_2_bohr
+        return self.cell / self.cell_n / ANG_TO_BOHR
 
     @property
     def dv_au(self):
@@ -236,14 +240,14 @@ class Cube:
     @property
     def x_arr_ang(self):
         """ in [ang] """
-        return self.x_arr_au / ang_2_bohr
+        return self.x_arr_au / ANG_TO_BOHR
 
     @property
     def y_arr_ang(self):
         """ in [ang] """
-        return self.y_arr_au / ang_2_bohr
+        return self.y_arr_au / ANG_TO_BOHR
 
     @property
     def z_arr_ang(self):
         """ in [ang] """
-        return self.z_arr_au / ang_2_bohr
+        return self.z_arr_au / ANG_TO_BOHR

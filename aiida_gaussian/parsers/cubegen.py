@@ -49,23 +49,72 @@ class CubegenBaseParser(Parser):
 
     def _parse_folders(self, retrieved_folders, parser_params):
 
+        if 'heights' in parser_params:
+            heights = parser_params['heights']
+        else:
+            heights = [2.0]
+
+        # By default, don't re-orient cube
+        orient_cube = False
+        if 'orient_cube' in parser_params:
+            orient_cube = parser_params['orient_cube']
+
+        out_array = ArrayData()
+
+        add_suppl = True
+
         for retrieved_fd in retrieved_folders:
             for filename in retrieved_fd.list_object_names():
                 if filename.endswith(".cube"):
 
-                    cube = Cube()
                     with retrieved_fd.open(filename) as handle:
-                        cube.read_cube(handle)
+                        cube = Cube.from_file_handle(handle)
 
-                    out_array = ArrayData()
+                    if orient_cube:
+                        self._orient_cube(cube)
 
-                    for h in np.arange(0.0, 10.0, 1.0):
+                    cube_data = None
+                    h_added = []
+
+                    for h in heights:
                         try:
                             cube_plane = cube.get_plane_above_topmost_atom(h)
-                            out_array.set_array('z_h%d' % int(h), cube_plane)
+                            cube_plane = np.expand_dims(cube_plane, axis=2)
+                            if cube_data is None:
+                                cube_data = cube_plane
+                            else:
+                                cube_data = np.concatenate((cube_data, cube_plane), axis=2)
+                            h_added.append(h)
                         except IndexError:
-                            break
+                            pass
 
-                    out_node_label = "cube_" + filename.split('.')[0].replace('-',
-                                                                              '').replace('+', '')
-                    self.out(out_node_label, out_array)
+                    if cube_data is None:
+                        # None of the heights were inside the calculated box
+                        return
+
+                    arr_label = "cube_" + os.path.splitext(filename)[0].replace('-', ''
+                                                                                ).replace('+', '')
+
+                    out_array.set_array(arr_label, cube_data)
+
+                    if add_suppl:
+                        out_array.set_array('x_arr', cube.x_arr_ang)
+                        out_array.set_array('y_arr', cube.y_arr_ang)
+                        out_array.set_array('h_arr', np.array(h_added))
+                        add_suppl = False
+
+        self.out('cube_planes_array', out_array)
+
+    def _orient_cube(self, cube):
+        """Swap cube axes such that 
+        index 0 has the longest-spanning dimension
+        index 2 has the "flattest" dimension
+        """
+        ptp = np.ptp(cube.ase_atoms.positions, axis=0)
+        i_max = np.argmax(ptp)
+        if i_max != 0:
+            cube.swapaxes(0, i_max)
+        ptp = np.ptp(cube.ase_atoms.positions, axis=0)
+        i_min = np.argmin(ptp)
+        if i_min != 2:
+            cube.swapaxes(2, i_min)

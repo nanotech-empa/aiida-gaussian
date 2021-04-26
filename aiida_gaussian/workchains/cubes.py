@@ -148,12 +148,14 @@ class GaussianCubesWorkChain(WorkChain):
 
         ase_atoms = ase.Atoms(gout_params['atomnos'], positions=gout_params['atomcoords'][0])
 
-        xmin = np.min(ase_atoms.positions[:, 0]) - self.inputs.edge_space.value
-        xmax = np.max(ase_atoms.positions[:, 0]) + self.inputs.edge_space.value
-        ymin = np.min(ase_atoms.positions[:, 1]) - self.inputs.edge_space.value
-        ymax = np.max(ase_atoms.positions[:, 1]) + self.inputs.edge_space.value
-        zmin = np.min(ase_atoms.positions[:, 2]) - self.inputs.edge_space.value
-        zmax = np.max(ase_atoms.positions[:, 2]) + self.inputs.edge_space.value
+        es = self.inputs.edge_space.value + self.inputs.dx.value
+
+        xmin = np.min(ase_atoms.positions[:, 0]) - es
+        xmax = np.max(ase_atoms.positions[:, 0]) + es
+        ymin = np.min(ase_atoms.positions[:, 1]) - es
+        ymax = np.max(ase_atoms.positions[:, 1]) + es
+        zmin = np.min(ase_atoms.positions[:, 2]) - es
+        zmax = np.max(ase_atoms.positions[:, 2]) + es
 
         geom_center = np.array([xmin + xmax, ymin + ymax, zmin + zmax]) / 2.0
 

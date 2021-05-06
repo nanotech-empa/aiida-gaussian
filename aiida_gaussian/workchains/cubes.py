@@ -3,7 +3,7 @@ import ase
 
 import numpy as np
 
-from aiida.engine import WorkChain, ToContext
+from aiida.engine import WorkChain, ToContext, ExitCode
 from aiida.orm import Int, Float, Str, Bool, Code, Dict, List
 from aiida.orm import SinglefileData, StructureData, RemoteData
 
@@ -37,19 +37,43 @@ class GaussianCubesWorkChain(WorkChain):
         )
 
         spec.input(
-            'n_occ',
-            valid_type=Int,
+            'orbital_indexes',
+            valid_type=List,
             required=False,
-            default=lambda: Int(1),
-            help='Number of occupied orbital cubes to generate'
+            default=lambda: List(list=[0, 1]),
+            help='Indexes of the orbital cubes to generate.'
         )
 
         spec.input(
-            'n_virt',
-            valid_type=Int,
+            'orbital_index_ref',
+            valid_type=Str,
             required=False,
-            default=lambda: Int(1),
-            help='Number of virtual orbital cubes to generate'
+            default=lambda: Str('half_num_el'),
+            help="Reference index, possible choices: 'half_num_el', 'abs'."
+        )
+
+        spec.input(
+            'natural_orbitals',
+            valid_type=Bool,
+            required=False,
+            default=lambda: Bool(False),
+            help="The cube files are natural orbitals."
+        )
+
+        spec.input(
+            'generate_density',
+            valid_type=Bool,
+            required=False,
+            default=lambda: Bool(True),
+            help="Generate density cube."
+        )
+
+        spec.input(
+            'generate_spin_density',
+            valid_type=Bool,
+            required=False,
+            default=lambda: Bool(True),
+            help="Generate spin density cube (if applicable)."
         )
 
         spec.input(
@@ -91,9 +115,15 @@ class GaussianCubesWorkChain(WorkChain):
             help='Additional parameters to cubegen parser.'
         )
 
-        spec.outline(cls.formchk_step, cls.cubegen_step, cls.finalize)
+        spec.outline(cls.check_input, cls.formchk_step, cls.cubegen_step, cls.finalize)
 
         spec.outputs.dynamic = True
+
+        spec.exit_code(
+            302,
+            "ERROR_INPUT",
+            message="Input options are invalid.",
+        )
 
         spec.exit_code(
             390,
@@ -118,6 +148,11 @@ class GaussianCubesWorkChain(WorkChain):
                 return False
         return True
 
+    def check_input(self):
+        if self.inputs.orbital_index_ref not in ('half_num_el', 'abs'):
+            return self.exit_codes.ERROR_INPUT  # pylint: disable=no-member
+        return ExitCode(0)
+
     def formchk_step(self):
 
         self.report("Running FormChk")
@@ -134,6 +169,17 @@ class GaussianCubesWorkChain(WorkChain):
         future = self.submit(builder)
         return ToContext(formchk_node=future)
 
+    def _get_orbital_label(self, i_orb_wrt_homo):
+        if i_orb_wrt_homo < 0:
+            label = "homo%+d" % i_orb_wrt_homo
+        elif i_orb_wrt_homo == 0:
+            label = "homo"
+        elif i_orb_wrt_homo == 1:
+            label = "lumo"
+        elif i_orb_wrt_homo > 1:
+            label = "lumo%+d" % (i_orb_wrt_homo - 1)
+        return label
+
     def cubegen_step(self):
 
         if not self._check_if_previous_calc_ok(self.ctx.formchk_node):
@@ -141,7 +187,7 @@ class GaussianCubesWorkChain(WorkChain):
 
         self.report("Running Cubegen")
 
-        gout_params = self.inputs.gaussian_output_params
+        gout_params = dict(self.inputs.gaussian_output_params)
 
         # --------------------------------------------------------------
         # Create the stencil
@@ -169,65 +215,72 @@ class GaussianCubesWorkChain(WorkChain):
         stencil += b"%d 0.0 0.0 %f\n" % (cell_n[2], self.inputs.dx.value)
 
         # --------------------------------------------------------------
+        # Create the parameters dict
+
+        params_dict = {}
+
+        orb_indexes = list(self.inputs.orbital_indexes)
+        abs_orb_indexes = []
+
+        if self.inputs.orbital_index_ref == 'half_num_el':
+
+            total_num_electrons = sum(gout_params['num_electrons'])
+            ref_index = total_num_electrons // 2
+
+            for i_orb in orb_indexes:
+                abs_orb_indexes.append(i_orb + ref_index)
+
+        elif self.inputs.orbital_index_ref == 'abs':
+            abs_orb_indexes = orb_indexes
+
+        # remove negative and 0 indexes
+        abs_orb_indexes = [i for i in abs_orb_indexes if i >= 1]
+
+        for i_orb in abs_orb_indexes:
+
+            if self.inputs.natural_orbitals:
+                params_dict[f"{i_orb}_no"] = {
+                    "kind": "MO=%d" % i_orb,
+                    "npts": -1,
+                }
+            else:
+                homos = gout_params['homos']
+                # use the cubegen convention, where counting starts from 1
+                homos = [h + 1 for h in homos]
+
+                for i_spin, h in enumerate(homos):
+                    label = self._get_orbital_label(i_orb - h)
+                    if len(homos) == 1:
+                        params_dict["%d_%s" % (i_orb, label)] = {
+                            "kind": "MO=%d" % i_orb,
+                            "npts": -1,
+                        }
+                    else:
+                        spin_letter = "a" if i_spin == 0 else "b"
+                        params_dict["%d_%s_%s" % (i_orb, spin_letter, label)] = {
+                            "kind": "%sMO=%d" % (spin_letter.upper(), i_orb),
+                            "npts": -1,
+                        }
+
+        if not self.inputs.natural_orbitals:
+            if self.inputs.generate_density:
+                params_dict['density'] = {
+                    "kind": "Density=SCF",
+                    "npts": -1,
+                }
+            if self.inputs.generate_spin_density:
+                if 'homos' in gout_params and len(gout_params['homos']) == 2:
+                    params_dict['spin'] = {
+                        "kind": "Spin=SCF",
+                        "npts": -1,
+                    }
+
+        # --------------------------------------------------------------
+        # Create the builder and submit!
 
         builder = CubegenCalculation.get_builder()
         builder.parent_calc_folder = self.ctx.formchk_node.outputs.remote_folder
         builder.code = self.inputs.cubegen_code
-
-        # in the output params, orbital counting starts from 0
-        homos = gout_params['homos']
-
-        # use the cubegen convention, where counting starts from 1
-        homos = [h + 1 for h in homos]
-
-        # Generate same orbitals for both spin channels (in case of inequal spin populations,
-        # choose such that both spin channels have at least n_occ occupied and n_virt unoccupied cubes)
-        i_mo_start = max(min(homos) - self.inputs.n_occ.value + 1, 1)
-        i_mo_end = max(homos) + self.inputs.n_virt.value
-
-        params_dict = {
-            "density": {
-                "kind": "Density=SCF",
-                "npts": -1,
-            },
-        }
-
-        for i_mo in range(i_mo_start, i_mo_end + 1, 1):
-
-            for i_spin, h in enumerate(homos):
-
-                i_mo_wrt_homo = i_mo - h
-                if i_mo_wrt_homo < 0:
-                    label = "homo%+d" % i_mo_wrt_homo
-                elif i_mo_wrt_homo == 0:
-                    label = "homo"
-                elif i_mo_wrt_homo == 1:
-                    label = "lumo"
-                elif i_mo_wrt_homo > 1:
-                    label = "lumo%+d" % (i_mo_wrt_homo - 1)
-
-                if len(homos) == 1:
-
-                    params_dict["%d_%s" % (i_mo, label)] = {
-                        "kind": "MO=%d" % i_mo,
-                        "npts": -1,
-                    }
-
-                else:
-
-                    spin_letter = "a" if i_spin == 0 else "b"
-
-                    params_dict["%d_%s_%s" % (i_mo, spin_letter, label)] = {
-                        "kind": "%sMO=%d" % (spin_letter.upper(), i_mo),
-                        "npts": -1,
-                    }
-
-        if len(homos) == 2:
-            params_dict['spin'] = {
-                "kind": "Spin=SCF",
-                "npts": -1,
-            }
-
         builder.stencil = SinglefileData(io.BytesIO(stencil))
         builder.parameters = Dict(dict=params_dict)
         builder.retrieve_cubes = self.inputs.retrieve_cubes

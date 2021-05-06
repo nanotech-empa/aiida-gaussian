@@ -15,7 +15,7 @@ import click
 import matplotlib.pyplot as plt
 
 from aiida.engine import run, run_get_node
-from aiida.orm import Code, Dict, Int, Float, Bool, StructureData
+from aiida.orm import Code, Dict, Int, Float, Bool, StructureData, List
 from aiida.common import NotExistent
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
@@ -62,8 +62,8 @@ def example(gaussian_code, formchk_code, cubegen_code):
         "tot_num_mpiprocs": num_cores,
         "num_machines": 1,
     }
-    # Should ask for extra ~1.5GB for libraries etc
-    builder.metadata.options.max_memory_kb = memory_mb * 1024 + 1536 * 1024
+    # Should ask for extra +25% extra memory
+    builder.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
     builder.metadata.options.max_wallclock_seconds = 5 * 60
 
     res, calc_node = run_get_node(builder)
@@ -76,8 +76,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
         cubegen_code=cubegen_code,
         gaussian_calc_folder=calc_node.outputs.remote_folder,
         gaussian_output_params=res['output_parameters'],
-        n_occ=Int(1),
-        n_virt=Int(1),
+        orbital_indexes=List(list=[0, 1]),
         dx=Float(0.2),
         edge_space=Float(2.5),
         retrieve_cubes=Bool(False),
@@ -85,7 +84,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
 
     assert wc_node.is_finished_ok
 
-    # Plot cubes
+    # Plot cube planes
     res = wc_node.outputs['cube_planes_array']
     h_arr = res.get_array('h_arr')
     for aname in res.get_arraynames():
@@ -95,7 +94,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
             amax = np.max(np.abs(data))
             plt.imshow(data, vmin=-amax, vmax=amax, cmap='seismic')
             plt.axis('off')
-            filename = f"./{aname}_{h}.png"
+            filename = f"./{aname}_h{h:.1f}.png"
             plt.savefig(filename, dpi=200, bbox_inches='tight')
             plt.close()
             print("Saved %s!" % filename)

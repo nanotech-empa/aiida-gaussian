@@ -62,9 +62,8 @@ def example_dft(gaussian_code):
         "tot_num_mpiprocs": num_cores,
     }
 
-    # Should ask for extra ~1.5GB for libraries etc
-    builder.metadata.options.max_memory_kb = (memory_mb + 1536) * 1024
-
+    # Should ask for extra +25% extra memory
+    builder.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
     builder.metadata.options.max_wallclock_seconds = 3 * 60
 
     builder.metadata.dry_run = True

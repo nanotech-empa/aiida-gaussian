@@ -22,7 +22,7 @@ init_version = aiida_gaussian.__version__
 github_version = None
 if "TAG_VERSION" in os.environ:
     tag_v = os.environ['TAG_VERSION']
-    github_version = tag_v.replace('v', '')
+    github_version = tag_v.split("/")[-1].replace('v', '')
 
 if setup_version != init_version or (
     github_version is not None and setup_version != github_version

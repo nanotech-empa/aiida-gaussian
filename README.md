@@ -21,6 +21,10 @@ parameters = {
         '%nprocshared': 4,
     },
     'route_parameters': {
+        'scf': {
+            'maxcycle': 128,
+            'cdiis': None,
+        },
         'nosymm': None,
         'output':'wfx',
         'opt': 'tight',

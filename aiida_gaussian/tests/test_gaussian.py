@@ -18,12 +18,10 @@ from aiida_gaussian import tests
 def test_gaussian(fixture_code):
 
     geometry_file = os.path.join(tests.TEST_DIR, "data", 'ch4.xyz')
-    expected_inp_file = os.path.join(tests.TEST_DIR, "data",
-                                     'gaussian_test.inp')
+    expected_inp_file = os.path.join(tests.TEST_DIR, "data", 'gaussian_test.inp')
 
     # structure
-    structure = StructureData(
-        pymatgen_molecule=Molecule.from_file(geometry_file))
+    structure = StructureData(pymatgen_molecule=Molecule.from_file(geometry_file))
 
     num_cores = 1
     memory_mb = 1000

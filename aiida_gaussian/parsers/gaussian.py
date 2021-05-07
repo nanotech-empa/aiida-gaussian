@@ -18,6 +18,8 @@ import cclib
 import re
 import ase
 
+NUM_RE = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
+
 
 class GaussianBaseParser(Parser):
     """
@@ -26,6 +28,7 @@ class GaussianBaseParser(Parser):
     Parses default cclib output as 'output_parameters' node and separates final SCF
     energy as 'energy_ev' and output structure as 'output_structure' (if applicable)
     """
+
     def parse(self, **kwargs):
         """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
 
@@ -59,6 +62,8 @@ class GaussianBaseParser(Parser):
         if property_dict is None:
             return self.exit_codes.ERROR_OUTPUT_PARSING
 
+        property_dict.update(self._parse_electron_numbers(log_file_string))
+
         # set output nodes
         self.out("output_parameters", Dict(dict=property_dict))
 
@@ -73,6 +78,15 @@ class GaussianBaseParser(Parser):
 
         return None
 
+    def _parse_electron_numbers(self, log_file_string):
+
+        find_el = re.search(r"({0})\s*alpha electrons\s*({0}) beta".format(NUM_RE), log_file_string)
+
+        if find_el is not None:
+            return {'num_electrons': [int(e) for e in find_el.groups()]}
+        else:
+            return {}
+
     def _parse_log_cclib(self, log_file_string):
 
         data = cclib.io.ccread(io.StringIO(log_file_string))
@@ -85,9 +99,7 @@ class GaussianBaseParser(Parser):
         # replace the first delta-energy of nan with zero
         # as nan is not allowed in AiiDA nodes
         if 'scfvalues' in property_dict:
-            property_dict['scfvalues'] = [
-                np.nan_to_num(svs) for svs in property_dict['scfvalues']
-            ]
+            property_dict['scfvalues'] = [np.nan_to_num(svs) for svs in property_dict['scfvalues']]
 
         return property_dict
 
@@ -95,8 +107,10 @@ class GaussianBaseParser(Parser):
         # in case of geometry optimization,
         # return the last geometry as a separated node
         if "atomcoords" in property_dict:
-            if ('opt' in inputs.parameters['route_parameters']
-                    or len(property_dict["atomcoords"]) > 1):
+            if (
+                'opt' in inputs.parameters['route_parameters'] or
+                len(property_dict["atomcoords"]) > 1
+            ):
 
                 opt_coords = property_dict["atomcoords"][-1]
 
@@ -105,9 +119,11 @@ class GaussianBaseParser(Parser):
                 # Set it arbitrarily as double the bounding box + 10
                 double_bbox = 2 * np.ptp(opt_coords, axis=0) + 10
 
-                ase_opt = ase.Atoms(property_dict["atomnos"],
-                                    positions=property_dict["atomcoords"][-1],
-                                    cell=double_bbox)
+                ase_opt = ase.Atoms(
+                    property_dict["atomnos"],
+                    positions=property_dict["atomcoords"][-1],
+                    cell=double_bbox
+                )
 
                 structure = StructureData(ase=ase_opt)
                 self.out('output_structure', structure)
@@ -120,8 +136,7 @@ class GaussianBaseParser(Parser):
         if "Error termination" in log_file_string:
             return self.exit_codes.ERROR_TERMINATION
 
-        if ('success' not in property_dict['metadata']
-                or not property_dict['metadata']['success']):
+        if 'success' not in property_dict['metadata'] or not property_dict['metadata']['success']:
             return self.exit_codes.ERROR_NO_NORMAL_TERMINATION
 
         return None
@@ -131,6 +146,7 @@ class GaussianAdvancedParser(GaussianBaseParser):
     """
     Advanced AiiDA parser for the output of Gaussian
     """
+
     def _parse_log(self, log_file_string, inputs):
         """ Overwrite the basic log parser """
 
@@ -139,6 +155,8 @@ class GaussianAdvancedParser(GaussianBaseParser):
 
         if property_dict is None:
             return self.exit_codes.ERROR_OUTPUT_PARSING
+
+        property_dict.update(self._parse_electron_numbers(log_file_string))
 
         # Add spin expectations in property_dict
         property_dict.update(self._parse_log_spin_exp(log_file_string))
@@ -163,10 +181,9 @@ class GaussianAdvancedParser(GaussianBaseParser):
     def _parse_log_spin_exp(self, log_file_string):
         """ Parse spin expectation values """
 
-        num_pattern = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
-
         spin_pattern = "\n <Sx>= ({0}) <Sy>= ({0}) <Sz>= ({0}) <S\\*\\*2>= ({0}) S= ({0})".format(
-            num_pattern)
+            NUM_RE
+        )
         spin_list = []
 
         for spin_line in re.findall(spin_pattern, log_file_string):
@@ -200,10 +217,8 @@ class GaussianAdvancedParser(GaussianBaseParser):
                     # effective gap:
                     property_dict['gap'] = min_lumo - max_homo
                     # gaps for each spin channel separately:
-                    property_dict['gap_a'] = (mo_e[0, ih_s0 + 1] -
-                                              mo_e[0, ih_s0])
-                    property_dict['gap_b'] = (mo_e[1, ih_s1 + 1] -
-                                              mo_e[1, ih_s1])
+                    property_dict['gap_a'] = (mo_e[0, ih_s0 + 1] - mo_e[0, ih_s0])
+                    property_dict['gap_b'] = (mo_e[1, ih_s1 + 1] - mo_e[1, ih_s1])
             except IndexError:
                 # In some cases, such as a very small basis set,
                 # the parsed MOs don't include LUMO and an IndexError is raised.

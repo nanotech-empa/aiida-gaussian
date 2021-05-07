@@ -36,9 +36,9 @@ class CubegenCalculation(CalcJob):
     See more details at https://gaussian.com/cubegen/
     """
 
-    _DEFAULT_INPUT_FILE = "aiida.fchk"
-    _PARENT_FOLDER_NAME = "parent_calc"
-    _DEFAULT_PARSER = "cubegen_base_parser"
+    DEFAULT_INPUT_FILE = "aiida.fchk"
+    PARENT_FOLDER_NAME = "parent_calc"
+    DEFAULT_PARSER = "gaussian.cubegen_base"
 
     @classmethod
     def define(cls, spec):
@@ -48,12 +48,15 @@ class CubegenCalculation(CalcJob):
             "parameters",
             valid_type=Dict,
             required=True,
-            help='dictionary containing entries for cubes to be printed.')
+            help='dictionary containing entries for cubes to be printed.'
+        )
 
-        spec.input('parent_calc_folder',
-                   valid_type=RemoteData,
-                   required=True,
-                   help='the folder of a containing the .fchk')
+        spec.input(
+            'parent_calc_folder',
+            valid_type=RemoteData,
+            required=True,
+            help='the folder of a containing the .fchk'
+        )
 
         spec.input(
             "stencil",
@@ -62,19 +65,21 @@ class CubegenCalculation(CalcJob):
             help="In case of npts=-1, use this cube specification.",
         )
 
-        spec.input('retrieve_cubes',
-                   valid_type=Bool,
-                   required=False,
-                   default=lambda: Bool(False),
-                   help='should the cubes be retrieved?')
+        spec.input(
+            'retrieve_cubes',
+            valid_type=Bool,
+            required=False,
+            default=lambda: Bool(False),
+            help='should the cubes be retrieved?'
+        )
 
         spec.input(
             "gauss_memdef",
             valid_type=Int,
             required=False,
             default=lambda: Int(1024),
-            help=
-            "Set the GAUSS_MEMDEF env variable to set the max memory in MB.")
+            help="Set the GAUSS_MEMDEF env variable to set the max memory in MB."
+        )
 
         # Turn mpi off by default
         spec.input('metadata.options.withmpi', valid_type=bool, default=False)
@@ -82,7 +87,7 @@ class CubegenCalculation(CalcJob):
         spec.input(
             "metadata.options.parser_name",
             valid_type=str,
-            default=cls._DEFAULT_PARSER,
+            default=cls.DEFAULT_PARSER,
             non_db=True,
         )
 
@@ -117,8 +122,8 @@ class CubegenCalculation(CalcJob):
 
         if "stencil" in self.inputs:
             calcinfo.local_copy_list.append(
-                (self.inputs.stencil.uuid, self.inputs.stencil.filename,
-                 'stencil.txt'))
+                (self.inputs.stencil.uuid, self.inputs.stencil.filename, 'stencil.txt')
+            )
 
         for key, params in self.inputs.parameters.get_dict().items():
 
@@ -134,15 +139,12 @@ class CubegenCalculation(CalcJob):
                 str(self.inputs.metadata.options.resources['tot_num_mpiprocs'])
             )
             codeinfo.cmdline_params.append(kind_str)
-            codeinfo.cmdline_params.append(self._PARENT_FOLDER_NAME + "/" +
-                                           self._DEFAULT_INPUT_FILE)
+            codeinfo.cmdline_params.append(self.PARENT_FOLDER_NAME + "/" + self.DEFAULT_INPUT_FILE)
             codeinfo.cmdline_params.append(cube_name)
 
             if npts == -1:
                 if 'stencil' not in self.inputs:
-                    self.report(
-                        "Warning: npts: -1 set but no stencil provided, using -2"
-                    )
+                    self.report("Warning: npts: -1 set but no stencil provided, using -2")
                     codeinfo.cmdline_params.append("-2")
                 else:
                     codeinfo.cmdline_params.append(str(npts))
@@ -165,8 +167,9 @@ class CubegenCalculation(CalcJob):
         calcinfo.remote_copy_list = []
         comp_uuid = self.inputs.parent_calc_folder.computer.uuid
         remote_path = self.inputs.parent_calc_folder.get_remote_path()
-        copy_info = (comp_uuid, remote_path, self._PARENT_FOLDER_NAME)
-        if self.inputs.code.computer.uuid == comp_uuid:  # if running on the same computer - make a symlink
+        copy_info = (comp_uuid, remote_path, self.PARENT_FOLDER_NAME)
+        if self.inputs.code.computer.uuid == comp_uuid:
+            # if running on the same computer - make a symlink
             # if not - copy the folder
             calcinfo.remote_symlink_list.append(copy_info)
         else:

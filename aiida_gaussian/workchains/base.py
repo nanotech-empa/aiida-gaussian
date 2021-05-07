@@ -40,28 +40,25 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         spec.exit_code(
             350,
             'ERROR_UNRECOVERABLE_SCF_FAILURE',
-            message=
-            'The calculation failed with an unrecoverable SCF convergence error.'
+            message='The calculation failed with an unrecoverable SCF convergence error.'
         )
 
         spec.exit_code(
             399,
             'ERROR_UNRECOVERABLE_TERMINATION',
-            message='The calculation failed with an unrecoverable error.')
+            message='The calculation failed with an unrecoverable error.'
+        )
 
     def setup(self):
-        """Call the `setup` of the `BaseRestartWorkChain` and then create the inputs dictionary in `self.ctx.inputs`.
+        """Call the `setup` and create the inputs dictionary in `self.ctx.inputs`.
         
-        This `self.ctx.inputs` dictionary will be used by the `BaseRestartWorkChain` to submit the calculations in the
-        internal loop.
+        This `self.ctx.inputs` dictionary will be used by the `BaseRestartWorkChain` to
+        submit the calculations in the internal loop.
         """
         super(GaussianBaseWorkChain, self).setup()
-        self.ctx.inputs = AttributeDict(
-            self.exposed_inputs(GaussianCalculation, 'gaussian'))
+        self.ctx.inputs = AttributeDict(self.exposed_inputs(GaussianCalculation, 'gaussian'))
 
-    @process_handler(
-        priority=400,
-        exit_codes=[GaussianCalculation.exit_codes.ERROR_SCF_FAILURE])
+    @process_handler(priority=400, exit_codes=[GaussianCalculation.exit_codes.ERROR_SCF_FAILURE])
     def handle_scf_failure(self, node):
         """
         Try to restart with
@@ -79,8 +76,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         if 'yqc' in route_params['scf']:
             # QC and YQC failed:
             self.report("SCF failed with QC and YQC, giving up...")
-            return ProcessHandlerReport(
-                True, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE)
+            return ProcessHandlerReport(True, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE)  # pylint: disable=no-member
 
         new_scf = {}
         # keep the user-set convergence criterion; replace rest
@@ -101,14 +97,11 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         return ProcessHandlerReport(True)
 
     @process_handler(
-        priority=0,
-        exit_codes=[
-            GaussianCalculation.exit_codes.ERROR_NO_NORMAL_TERMINATION
-        ])
+        priority=0, exit_codes=[GaussianCalculation.exit_codes.ERROR_NO_NORMAL_TERMINATION]
+    )
     def handle_misc_failure(self, node):
         """
         By default, the BaseRestartWorkChain restarts any unhandled error once
         Disable this feature for the exit_code that corresponds to out-of-time
         """
-        return ProcessHandlerReport(
-            False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)
+        return ProcessHandlerReport(False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)  # pylint: disable=no-member

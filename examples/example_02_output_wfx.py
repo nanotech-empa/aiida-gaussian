@@ -27,7 +27,7 @@ def example_dft(gaussian_code):
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
 
     num_cores = 2
-    memory_mb = 200
+    memory_mb = 300
 
     # parameters
     parameters = Dict(

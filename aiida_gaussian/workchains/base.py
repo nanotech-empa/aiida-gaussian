@@ -32,10 +32,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
             cls.results,
         )
 
-        spec.expose_outputs(GaussianCalculation)
-
-        # TODO: Is there any way to expose dynamic outputs?
-        #spec.outputs.dynamic = True
+        spec.outputs.dynamic = True
 
         spec.exit_code(
             350,
@@ -105,3 +102,24 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         Disable this feature for the exit_code that corresponds to out-of-time
         """
         return ProcessHandlerReport(False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)  # pylint: disable=no-member
+
+    def results(self):
+        """Overload the method such that each dynamic output of GaussianCalculation is set."""
+        node = self.ctx.children[self.ctx.iteration - 1]
+
+        # We check the `is_finished` attribute of the work chain and not the successfulness of the last process
+        # because the error handlers in the last iteration can have qualified a "failed" process as satisfactory
+        # for the outcome of the work chain and so have marked it as `is_finished=True`.
+        max_iterations = self.inputs.max_iterations.value  # type: ignore[union-attr]
+        if not self.ctx.is_finished and self.ctx.iteration >= max_iterations:
+            self.report(
+                f'reached the maximum number of iterations {max_iterations}: '
+                f'last ran {self.ctx.process_name}<{node.pk}>'
+            )
+            return self.exit_codes.ERROR_MAXIMUM_ITERATIONS_EXCEEDED  # pylint: disable=no-member
+
+        self.report(f'work chain completed after {self.ctx.iteration} iterations')
+
+        self.out_many({key: node.outputs[key] for key in node.outputs})
+
+        return None

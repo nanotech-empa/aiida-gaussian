@@ -19,7 +19,7 @@ GaussianCalculation = CalculationFactory('gaussian')
 
 
 def example_dft(gaussian_code):
-    """Run a simple two-step gaussian calculation"""
+    """Run a simple gaussian optimization"""
 
     # structure
     structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))

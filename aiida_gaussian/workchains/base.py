@@ -59,9 +59,9 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
     def handle_scf_failure(self, node):
         """
         Try to restart with
-        1) scf=(qc)
+        1) scf=(yqc)
         and if it doesn't work then
-        2) scf=(yqc)
+        2) scf=(xqc)
         """
 
         params = dict(self.ctx.inputs.parameters)
@@ -70,9 +70,9 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         if 'scf' not in route_params:
             route_params['scf'] = {}
 
-        if 'yqc' in route_params['scf']:
-            # QC and YQC failed:
-            self.report("SCF failed with QC and YQC, giving up...")
+        if 'xqc' in route_params['scf']:
+            # XQC and YQC failed:
+            self.report("SCF failed with YQC and XQC, giving up...")
             return ProcessHandlerReport(True, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE)  # pylint: disable=no-member
 
         new_scf = {}
@@ -80,12 +80,12 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         if 'conver' in route_params['scf']:
             new_scf['conver'] = route_params['scf']['conver']
 
-        if 'qc' in route_params['scf']:
-            self.report("SCF=(QC) failed, retrying with SCF=(YQC)")
-            new_scf['yqc'] = None
+        if 'yqc' in route_params['scf']:
+            self.report("SCF=(YQC) failed, retrying with SCF=(XQC)")
+            new_scf['xqc'] = None
         else:
-            self.report("SCF failed, retrying with SCF=(QC)")
-            new_scf['qc'] = None
+            self.report("SCF failed, retrying with SCF=(YQC)")
+            new_scf['yqc'] = None
 
         # Update the params Dict
         route_params['scf'] = new_scf

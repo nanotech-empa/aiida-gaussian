@@ -2,7 +2,7 @@
 """Gaussian input plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import Dict, List, RemoteData, Float
+from aiida.orm import Dict, RemoteData, Float
 from aiida.common import CalcInfo, CodeInfo
 
 # from aiida.cmdline.utils import echo

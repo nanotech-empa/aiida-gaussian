@@ -73,7 +73,7 @@ def example_dft(gaussian_code):
 
 
 @click.command('cli')
-@click.argument('codelabel')
+@click.argument('codelabel', default='gaussian@localhost')
 def cli(codelabel):
     """Click interface"""
     try:

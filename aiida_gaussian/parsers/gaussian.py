@@ -56,6 +56,10 @@ class GaussianBaseParser(Parser):
 
     def _parse_log(self, log_file_string, inputs):
 
+        # Error related to the symmetry identification (?).
+        if "Logic error in ASyTop." in log_file_string:
+            return self.exit_codes.ERROR_ASYTOP
+
         # parse with cclib
         property_dict = self._parse_log_cclib(log_file_string)
 
@@ -149,6 +153,10 @@ class GaussianAdvancedParser(GaussianBaseParser):
 
     def _parse_log(self, log_file_string, inputs):
         """ Overwrite the basic log parser """
+
+        # Error related to the symmetry identification (?).
+        if "Logic error in ASyTop." in log_file_string:
+            return self.exit_codes.ERROR_ASYTOP
 
         # parse with cclib
         property_dict = self._parse_log_cclib(log_file_string)

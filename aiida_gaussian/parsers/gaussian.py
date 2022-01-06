@@ -130,6 +130,10 @@ class GaussianBaseParser(Parser):
 
     def _final_checks_on_log(self, log_file_string, property_dict):
 
+        # Error related to the symmetry identification (?).
+        if "Logic error in ASyTop." in log_file_string:
+            return self.exit_codes.ERROR_ASYTOP
+
         if "Convergence failure -- run terminated." in log_file_string:
             return self.exit_codes.ERROR_SCF_FAILURE
 

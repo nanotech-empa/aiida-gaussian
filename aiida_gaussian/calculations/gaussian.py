@@ -132,6 +132,11 @@ class GaussianCalculation(CalcJob):
             message="The SCF did not converge and the calculation was terminated.",
         )
         spec.exit_code(
+            302,
+            "ERROR_ASYTOP",
+            message="The calculation was terminated due to a logic error in ASyTop.",
+        )
+        spec.exit_code(
             390,
             "ERROR_TERMINATION",
             message="The calculation was terminated due to an error.",

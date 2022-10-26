@@ -134,6 +134,9 @@ class GaussianBaseParser(Parser):
         if "Logic error in ASyTop." in log_file_string:
             return self.exit_codes.ERROR_ASYTOP
 
+        if "Inaccurate quadrature in CalDSu." in log_file_string:
+            return self.exit_codes.ERROR_INACCURATE_QUADRATURE_CALDSU
+
         if "Convergence failure -- run terminated." in log_file_string:
             return self.exit_codes.ERROR_SCF_FAILURE
 

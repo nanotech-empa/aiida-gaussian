@@ -55,7 +55,13 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         super(GaussianBaseWorkChain, self).setup()
         self.ctx.inputs = AttributeDict(self.exposed_inputs(GaussianCalculation, 'gaussian'))
 
-    @process_handler(priority=400, exit_codes=[GaussianCalculation.exit_codes.ERROR_SCF_FAILURE])
+    @process_handler(
+        priority=400,
+        exit_codes=[
+            GaussianCalculation.exit_codes.ERROR_SCF_FAILURE,
+            GaussianCalculation.exit_codes.ERROR_INACCURATE_QUADRATURE_CALDSU
+        ]
+    )
     def handle_scf_failure(self, node):
         """
         Try to restart with
@@ -102,6 +108,15 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         Disable this feature for the exit_code that corresponds to out-of-time
         """
         return ProcessHandlerReport(False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)  # pylint: disable=no-member
+
+    @process_handler(priority=0, exit_codes=[])
+    def handle_inaccurate_quadrature(self, node):
+        """Switching ON the quadratically convergent SCF procedure."""
+        params = self.ctx.inputs.parameters.get_dict()
+        route_params = params['route_parameters']
+
+        if 'scf' not in route_params:
+            route_params['scf'] = {}
 
     def results(self):
         """Overload the method such that each dynamic output of GaussianCalculation is set."""

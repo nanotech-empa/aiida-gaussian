@@ -64,7 +64,7 @@ def example_dft(gaussian_code):
 
     # Should ask for extra +25% extra memory
     builder.gaussian.metadata.options.max_memory_kb = int(1.25 * memory_mb) * 1024
-    builder.gaussian.metadata.options.max_wallclock_seconds = 3 * 60 * 60
+    builder.gaussian.metadata.options.max_wallclock_seconds = 5 * 60
 
     print("Running calculation...")
     res, _node = run_get_node(builder)

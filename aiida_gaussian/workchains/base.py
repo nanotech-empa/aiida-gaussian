@@ -109,15 +109,6 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         """
         return ProcessHandlerReport(False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)  # pylint: disable=no-member
 
-    @process_handler(priority=0, exit_codes=[])
-    def handle_inaccurate_quadrature(self, node):
-        """Switching ON the quadratically convergent SCF procedure."""
-        params = self.ctx.inputs.parameters.get_dict()
-        route_params = params['route_parameters']
-
-        if 'scf' not in route_params:
-            route_params['scf'] = {}
-
     def results(self):
         """Overload the method such that each dynamic output of GaussianCalculation is set."""
         node = self.ctx.children[self.ctx.iteration - 1]

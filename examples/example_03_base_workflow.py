@@ -20,7 +20,9 @@ GaussianBaseWorkChain = WorkflowFactory('gaussian.base')
 
 def example_dft(gaussian_code):
     """Run a base restart workchain.
-    The first run should except with ASyTop error, then the 
+
+    The first run should except with ASyTop error, then the handler should
+    restart the calculation with structure coordinates rounded to the 4th digit.
     """
 
     # structure

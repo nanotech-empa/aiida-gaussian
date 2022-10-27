@@ -55,7 +55,13 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         super(GaussianBaseWorkChain, self).setup()
         self.ctx.inputs = AttributeDict(self.exposed_inputs(GaussianCalculation, 'gaussian'))
 
-    @process_handler(priority=400, exit_codes=[GaussianCalculation.exit_codes.ERROR_SCF_FAILURE])
+    @process_handler(
+        priority=400,
+        exit_codes=[
+            GaussianCalculation.exit_codes.ERROR_SCF_FAILURE,
+            GaussianCalculation.exit_codes.ERROR_INACCURATE_QUADRATURE_CALDSU
+        ]
+    )
     def handle_scf_failure(self, node):
         """
         Try to restart with

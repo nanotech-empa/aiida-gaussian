@@ -137,6 +137,11 @@ class GaussianCalculation(CalcJob):
             message="The calculation was terminated due to a logic error in ASyTop.",
         )
         spec.exit_code(
+            303,
+            "ERROR_INACCURATE_QUADRATURE_CALDSU",
+            message="The calculation was terminated due to an inaccurate quadrature in CalDSu.",
+        )
+        spec.exit_code(
             390,
             "ERROR_TERMINATION",
             message="The calculation was terminated due to an error.",

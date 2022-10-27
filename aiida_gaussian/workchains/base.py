@@ -7,9 +7,10 @@ from aiida.engine import process_handler, ProcessHandlerReport
 from aiida.engine import BaseRestartWorkChain, while_
 from aiida.orm import Dict
 
-from aiida.plugins import CalculationFactory
+from aiida.plugins import CalculationFactory, DataFactory
 
 GaussianCalculation = CalculationFactory('gaussian')
+StructureData = DataFactory('structure')
 
 
 class GaussianBaseWorkChain(BaseRestartWorkChain):
@@ -100,6 +101,19 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         return ProcessHandlerReport(True)
 
     @process_handler(
+        priority=500, exit_codes=[GaussianCalculation.exit_codes.ERROR_ASYTOP], enabled=False
+    )
+    def handle_asytop_error(self, node):
+        """Handle the error code 302 (ASYTOP)."""
+        self.report(
+            "ASYTOP error encountered. Rounding the coordinates to the 4th digit and trying again."
+        )
+        structure_ase = self.ctx.inputs.structure.get_ase()
+        structure_ase.set_positions(structure_ase.get_positions().round(4))
+        self.ctx.inputs.structure = StructureData(ase=structure_ase)
+        return ProcessHandlerReport(True)
+
+    @process_handler(
         priority=0, exit_codes=[GaussianCalculation.exit_codes.ERROR_NO_NORMAL_TERMINATION]
     )
     def handle_misc_failure(self, node):
@@ -124,7 +138,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
             )
             return self.exit_codes.ERROR_MAXIMUM_ITERATIONS_EXCEEDED  # pylint: disable=no-member
 
-        self.report(f'work chain completed after {self.ctx.iteration} iterations')
+        self.report(f'The work chain completed after {self.ctx.iteration} iterations')
 
         self.out_many({key: node.outputs[key] for key in node.outputs})
 

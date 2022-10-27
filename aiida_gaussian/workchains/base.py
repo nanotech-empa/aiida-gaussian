@@ -104,7 +104,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         priority=500, exit_codes=[GaussianCalculation.exit_codes.ERROR_ASYTOP], enabled=False
     )
     def handle_asytop_error(self, node):
-        """Handle the error code 500 (ASYTOP)."""
+        """Handle the error code 302 (ASYTOP)."""
         self.report(
             "ASYTOP error encountered. Rounding the coordinates to the 4th digit and trying again."
         )

@@ -1,7 +1,76 @@
 [build-system]
-# this version is required to support reading of version in setup.cfg
-requires = ["setuptools>=46.4.0"]
+requires = ["setuptools>=61.2"]
 build-backend = "setuptools.build_meta"
 
-[tool.pytest.ini_options]
-norecursedirs = "tests/data"
+[project]
+name = "aiida-gaussian"
+description = "AiiDA plugin for the Gaussian quantum chemistry software."
+authors = [{name = "Kristjan Eimre"}, {name = "Pezhman Zarabadi-Poor"}, {name = "Aliaksandr Yakutovich"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AiiDA",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "aiida-core>=1.0.0,<2.0.0",
+    "pymatgen>=2020.4,<2022.0.0",
+    "cclib>=1.6.1,<=1.7",
+    "ase",
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/nanotech-empa/aiida-gaussian"
+
+[project.optional-dependencies]
+testing = [
+    "pgtest~=1.3.2",
+    "wheel~=0.31",
+    "coverage",
+    "pytest~=6.1",
+    "pytest-cov",
+    "coveralls",
+]
+pre-commit = [
+    "astroid>=2.2.5",
+    "pre-commit>=2.7.1",
+    "pylint>=2.5.1",
+]
+
+[project.entry-points."aiida.calculations"]
+"gaussian" = "aiida_gaussian.calculations:GaussianCalculation"
+"gaussian.formchk" = "aiida_gaussian.calculations:FormchkCalculation"
+"gaussian.cubegen" = "aiida_gaussian.calculations:CubegenCalculation"
+
+[project.entry-points."aiida.parsers"]
+"gaussian.base" = "aiida_gaussian.parsers.gaussian:GaussianBaseParser"
+"gaussian.advanced" = "aiida_gaussian.parsers.gaussian:GaussianAdvancedParser"
+"gaussian.cubegen_base" = "aiida_gaussian.parsers.cubegen:CubegenBaseParser"
+
+[project.entry-points."aiida.workflows"]
+"gaussian.base" = "aiida_gaussian.workchains:GaussianBaseWorkChain"
+"gaussian.cubes" = "aiida_gaussian.workchains:GaussianCubesWorkChain"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.setuptools.dynamic]
+version = {attr = "aiida_gaussian.version.__version__"}

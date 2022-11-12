@@ -20,7 +20,7 @@ jobs:
       with:
         python-version: 3.8
 
-    - name: Upgrade setuptools and install package
+    - name: Install pypa/build
       run: |
         python -m pip install build
 

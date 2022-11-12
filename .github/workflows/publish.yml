@@ -25,7 +25,7 @@ jobs:
         python -m pip install build
 
     - name: Build source distribution
-      run: python ./setup.py sdist
+      run: python -m build . --wheel --sdist
 
     - uses: softprops/action-gh-release@v0.1.14
       name: Create release

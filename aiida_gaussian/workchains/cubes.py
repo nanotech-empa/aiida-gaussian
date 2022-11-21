@@ -282,7 +282,7 @@ class GaussianCubesWorkChain(WorkChain):
         builder.parent_calc_folder = self.ctx.formchk_node.outputs.remote_folder
         builder.code = self.inputs.cubegen_code
         builder.stencil = SinglefileData(io.BytesIO(stencil))
-        builder.parameters = Dict(dict=params_dict)
+        builder.parameters = Dict(params_dict)
         builder.retrieve_cubes = self.inputs.retrieve_cubes
 
         builder.parser_params = self.inputs.cubegen_parser_params

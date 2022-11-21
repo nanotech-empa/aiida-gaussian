@@ -11,7 +11,7 @@ from aiida.plugins import DataFactory
 
 import pymatgen.io.gaussian as mgaus
 
-StructureData = DataFactory("structure")
+StructureData = DataFactory("core.structure")
 
 
 class GaussianCalculation(CalcJob):

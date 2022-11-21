@@ -10,7 +10,7 @@ from aiida.orm import Dict
 from aiida.plugins import CalculationFactory, DataFactory
 
 GaussianCalculation = CalculationFactory('gaussian')
-StructureData = DataFactory('structure')
+StructureData = DataFactory('core.structure')
 
 
 class GaussianBaseWorkChain(BaseRestartWorkChain):
@@ -96,7 +96,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
 
         # Update the params Dict
         route_params['scf'] = new_scf
-        self.ctx.inputs.parameters = Dict(dict=params)
+        self.ctx.inputs.parameters = Dict(params)
 
         return ProcessHandlerReport(True)
 

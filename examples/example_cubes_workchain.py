@@ -37,27 +37,25 @@ def example(gaussian_code, formchk_code, cubegen_code):
     builder = GaussianCalculation.get_builder()
     builder.code = gaussian_code
     builder.structure = struct_node
-    builder.parameters = Dict(
-        dict={
-            'link0_parameters': {
-                '%chk': 'aiida.chk',
-                '%mem': "%dMB" % memory_mb,
-                '%nprocshared': str(num_cores),
+    builder.parameters = Dict({
+        'link0_parameters': {
+            '%chk': 'aiida.chk',
+            '%mem': "%dMB" % memory_mb,
+            '%nprocshared': str(num_cores),
+        },
+        'functional': 'UB3LYP',
+        'basis_set': '6-31g',
+        'charge': 0,
+        'multiplicity': 1,
+        'route_parameters': {
+            'scf': {
+                'cdiis': None,
             },
-            'functional': 'UB3LYP',
-            'basis_set': '6-31g',
-            'charge': 0,
-            'multiplicity': 1,
-            'route_parameters': {
-                'scf': {
-                    'cdiis': None,
-                },
-                'guess': 'mix',
-                'nosymm': None,
-                'sp': None,
-            },
-        }
-    )
+            'guess': 'mix',
+            'nosymm': None,
+            'sp': None,
+        },
+    })
     builder.metadata.options.resources = {
         "tot_num_mpiprocs": num_cores,
         "num_machines": 1,

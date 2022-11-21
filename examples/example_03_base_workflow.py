@@ -32,33 +32,31 @@ def example_dft(gaussian_code):
     memory_mb = 300
 
     # Main parameters: geometry optimization
-    parameters = Dict(
-        dict={
-            'link0_parameters': {
-                '%chk': 'aiida.chk',
-                '%mem': "%dMB" % memory_mb,
-                '%nprocshared': num_cores,
+    parameters = Dict({
+        'link0_parameters': {
+            '%chk': 'aiida.chk',
+            '%mem': "%dMB" % memory_mb,
+            '%nprocshared': num_cores,
+        },
+        'functional': 'B3LYP',
+        'basis_set': '6-31g',
+        'charge': 0,
+        'multiplicity': 1,
+        'route_parameters': {
+            'scf': {
+                'conver': 7,
+                'maxcycle': 140,
             },
-            'functional': 'B3LYP',
-            'basis_set': '6-31g',
-            'charge': 0,
-            'multiplicity': 1,
-            'route_parameters': {
-                'scf': {
-                    'conver': 7,
-                    'maxcycle': 140,
-                },
-                'sp': None,
-            },
-        }
-    )
+            'sp': None,
+        },
+    })
 
     # Construct process builder
 
     builder = GaussianBaseWorkChain.get_builder()
 
     # Handle the ASyTop error
-    builder.handler_overrides = Dict(dict={'handle_asytop_error': True})
+    builder.handler_overrides = Dict({'handle_asytop_error': True})
 
     builder.gaussian.structure = structure
     builder.gaussian.parameters = parameters

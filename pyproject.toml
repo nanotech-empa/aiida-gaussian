@@ -79,7 +79,7 @@ find = {namespaces = false}
 version = {attr = "aiida_gaussian.version.__version__"}
 
 [tool.bumpver]
-current_version = "v1.5.0"
+current_version = "v2.0.0"
 version_pattern = "vMAJOR.MINOR.PATCH[PYTAGNUM]"
 commit_message = "Bump version {old_version} -> {new_version}."
 commit = true

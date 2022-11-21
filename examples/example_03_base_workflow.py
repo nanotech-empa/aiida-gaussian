@@ -33,7 +33,7 @@ def example_dft(gaussian_code):
 
     # Main parameters: geometry optimization
     parameters = Dict(
-        dict={
+        {
             'link0_parameters': {
                 '%chk': 'aiida.chk',
                 '%mem': "%dMB" % memory_mb,
@@ -58,7 +58,7 @@ def example_dft(gaussian_code):
     builder = GaussianBaseWorkChain.get_builder()
 
     # Handle the ASyTop error
-    builder.handler_overrides = Dict(dict={'handle_asytop_error': True})
+    builder.handler_overrides = Dict({'handle_asytop_error': True})
 
     builder.gaussian.structure = structure
     builder.gaussian.parameters = parameters

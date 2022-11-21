@@ -31,7 +31,7 @@ def example_dft(gaussian_code):
 
     # parameters
     parameters = Dict(
-        dict={
+        {
             'link0_parameters': {
                 '%chk': 'aiida.chk',
                 '%mem': '%dMB' % memory_mb,

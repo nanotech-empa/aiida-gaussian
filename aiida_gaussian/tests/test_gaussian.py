@@ -52,7 +52,7 @@ def test_gaussian(fixture_code):
     inputs = {
         'code': fixture_code('gaussian'),  #load_code("gaussian09@localhost"),
         'structure': structure,
-        'parameters': Dict(dict=parameters),
+        'parameters': Dict(parameters),
         'metadata': {
             'options': {
                 'resources': {

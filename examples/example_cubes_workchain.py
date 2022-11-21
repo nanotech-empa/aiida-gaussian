@@ -38,7 +38,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
     builder.code = gaussian_code
     builder.structure = struct_node
     builder.parameters = Dict(
-        dict={
+        {
             'link0_parameters': {
                 '%chk': 'aiida.chk',
                 '%mem': "%dMB" % memory_mb,

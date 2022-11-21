@@ -4,51 +4,6 @@ on: [push, pull_request]
 
 jobs:
 
-  tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      postgres:
-        image: postgres:10
-        ports:
-          - 5432:5432
-      rabbitmq:
-        image: rabbitmq:latest
-        ports:
-          - 5672:5672
-    strategy:
-      matrix:
-        python-version: [3.8]
-        backend: ['django']
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install postgresql-12
-
-    - name: Install python dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -e .[testing]
-        reentry scan -r aiida
-
-    - name: Run test suite
-      env:
-        AIIDA_TEST_BACKEND: ${{ matrix.backend }}
-        # show timings of tests
-        PYTEST_ADDOPTS: "--durations=0"
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: |
-        py.test --cov aiida_gaussian --cov-append .
-        coveralls
-
   pre-commit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -62,8 +17,44 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -e .[pre-commit]
-        reentry scan -r aiida
     - name: Run pre-commit
       run: |
         pre-commit install
         pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:12
+        ports:
+          - 5432:5432
+      rabbitmq:
+        image: rabbitmq:latest
+        ports:
+          - 5672:5672
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install python dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[testing]
+
+    - name: Run test suite
+      env:
+        # show timings of tests
+        PYTEST_ADDOPTS: "--durations=0"
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+      run: |
+        py.test --cov aiida_gaussian --cov-append .
+        coveralls

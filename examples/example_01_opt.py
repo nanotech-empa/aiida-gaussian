@@ -28,26 +28,24 @@ def example_dft(gaussian_code):
     memory_mb = 300
 
     # Main parameters: geometry optimization
-    parameters = Dict(
-        {
-            'link0_parameters': {
-                '%chk': 'aiida.chk',
-                '%mem': "%dMB" % memory_mb,
-                '%nprocshared': num_cores,
+    parameters = Dict({
+        'link0_parameters': {
+            '%chk': 'aiida.chk',
+            '%mem': "%dMB" % memory_mb,
+            '%nprocshared': num_cores,
+        },
+        'functional': 'BLYP',
+        'basis_set': '6-31g',
+        'charge': 0,
+        'multiplicity': 1,
+        'route_parameters': {
+            'scf': {
+                'cdiis': None,
             },
-            'functional': 'BLYP',
-            'basis_set': '6-31g',
-            'charge': 0,
-            'multiplicity': 1,
-            'route_parameters': {
-                'scf': {
-                    'cdiis': None,
-                },
-                'nosymm': None,
-                'opt': None,
-            },
-        }
-    )
+            'nosymm': None,
+            'opt': None,
+        },
+    })
 
     # Construct process builder
 

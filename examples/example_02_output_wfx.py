@@ -30,24 +30,22 @@ def example_dft(gaussian_code):
     memory_mb = 300
 
     # parameters
-    parameters = Dict(
-        {
-            'link0_parameters': {
-                '%chk': 'aiida.chk',
-                '%mem': '%dMB' % memory_mb,
-                '%nprocshared': num_cores,
-            },
-            'functional': 'PBE1PBE',
-            'basis_set': '6-31g',
-            'route_parameters': {
-                'nosymm': None,
-                'Output': 'WFX'
-            },
-            'input_parameters': {
-                'output.wfx': None
-            },
-        }
-    )
+    parameters = Dict({
+        'link0_parameters': {
+            '%chk': 'aiida.chk',
+            '%mem': '%dMB' % memory_mb,
+            '%nprocshared': num_cores,
+        },
+        'functional': 'PBE1PBE',
+        'basis_set': '6-31g',
+        'route_parameters': {
+            'nosymm': None,
+            'Output': 'WFX'
+        },
+        'input_parameters': {
+            'output.wfx': None
+        },
+    })
 
     # Construct process builder
 

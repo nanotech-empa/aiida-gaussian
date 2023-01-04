@@ -3,12 +3,12 @@
 from __future__ import absolute_import
 
 import os
-import numpy as np
 
-from aiida.parsers import Parser
+import numpy as np
 from aiida.common import NotExistent
 from aiida.engine import ExitCode
 from aiida.orm import ArrayData, FolderData
+from aiida.parsers import Parser
 
 from aiida_gaussian.utils.cube import Cube
 

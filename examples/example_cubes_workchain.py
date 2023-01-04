@@ -4,19 +4,17 @@
 Run the Gaussian cubes workchain
 """
 
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
+
+import sys
 
 import ase.io
-import numpy as np
-import sys
 import click
-
 import matplotlib.pyplot as plt
-
-from aiida.engine import run, run_get_node
-from aiida.orm import Code, Dict, Int, Float, Bool, StructureData, List
+import numpy as np
 from aiida.common import NotExistent
+from aiida.engine import run, run_get_node
+from aiida.orm import Bool, Code, Dict, Float, Int, List, StructureData
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
 GaussianCalculation = CalculationFactory('gaussian')

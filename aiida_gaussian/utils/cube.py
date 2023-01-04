@@ -2,8 +2,8 @@
 Routines regarding gaussian cube files
 """
 
-import numpy as np
 import ase
+import numpy as np
 
 ANG_TO_BOHR = 1.8897259886
 

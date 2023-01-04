@@ -2,14 +2,13 @@
 """Gaussian input plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import Dict, RemoteData, Float
+import pymatgen.io.gaussian as mgaus
 from aiida.common import CalcInfo, CodeInfo
 
 # from aiida.cmdline.utils import echo
 from aiida.engine import CalcJob
+from aiida.orm import Dict, Float, RemoteData
 from aiida.plugins import DataFactory
-
-import pymatgen.io.gaussian as mgaus
 
 StructureData = DataFactory("core.structure")
 

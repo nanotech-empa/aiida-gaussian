@@ -1,6 +1,8 @@
 """pytest fixtures for simplified testing."""
 from __future__ import absolute_import
+
 import pytest
+
 pytest_plugins = ['aiida.manage.tests.pytest_fixtures']
 
 

@@ -2,18 +2,16 @@
 # pylint: disable=invalid-name
 """Run simple DFT calculation"""
 
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import sys
-import click
 
+import click
+import pymatgen as mg
+from aiida.common import NotExistent
 from aiida.engine import run, run_get_node
 from aiida.orm import Code, Dict, StructureData
-from aiida.common import NotExistent
 from aiida.plugins import WorkflowFactory
-
-import pymatgen as mg
 
 GaussianBaseWorkChain = WorkflowFactory('gaussian.base')
 

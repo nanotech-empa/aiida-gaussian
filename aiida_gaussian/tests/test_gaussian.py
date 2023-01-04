@@ -1,17 +1,16 @@
 """ Tests for gaussian plugin
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
-
-from aiida.engine import run
-from aiida.orm import Code, Dict, StructureData
-from aiida.common import NotExistent
-from aiida.plugins import CalculationFactory
-
-from pymatgen.core import Molecule
+from __future__ import absolute_import, print_function
 
 import os
+
+from aiida.common import NotExistent
+from aiida.engine import run
+from aiida.orm import Code, Dict, StructureData
+from aiida.plugins import CalculationFactory
+from pymatgen.core import Molecule
+
 from aiida_gaussian import tests
 
 
@@ -67,9 +66,9 @@ def test_gaussian(fixture_code):
 
     # Prepare the fake calculation for submission in a "sandbox folder"
 
+    from aiida.common.folders import SandboxFolder
     from aiida.engine.utils import instantiate_process
     from aiida.manage.manager import get_manager
-    from aiida.common.folders import SandboxFolder
 
     manager = get_manager()
     runner = manager.get_runner()

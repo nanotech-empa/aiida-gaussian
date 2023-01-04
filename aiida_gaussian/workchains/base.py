@@ -2,11 +2,13 @@
 """Base work chain to run a Gaussian calculation."""
 
 from aiida.common import AttributeDict
-
-from aiida.engine import process_handler, ProcessHandlerReport
-from aiida.engine import BaseRestartWorkChain, while_
+from aiida.engine import (
+    BaseRestartWorkChain,
+    ProcessHandlerReport,
+    process_handler,
+    while_,
+)
 from aiida.orm import Dict
-
 from aiida.plugins import CalculationFactory, DataFactory
 
 GaussianCalculation = CalculationFactory('gaussian')

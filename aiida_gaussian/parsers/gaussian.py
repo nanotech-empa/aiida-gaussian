@@ -2,21 +2,19 @@
 """AiiDA-Gaussian output parser"""
 from __future__ import absolute_import
 
-import os
 import io
-import tempfile
-import numpy as np
-
-from aiida.parsers import Parser
-from aiida.common import OutputParsingError, NotExistent
-from aiida.engine import ExitCode
-from aiida.orm import Dict, StructureData, Float
-
-import pymatgen.io.gaussian as mgaus
-
-import cclib
+import os
 import re
+import tempfile
+
 import ase
+import cclib
+import numpy as np
+import pymatgen.io.gaussian as mgaus
+from aiida.common import NotExistent, OutputParsingError
+from aiida.engine import ExitCode
+from aiida.orm import Dict, Float, StructureData
+from aiida.parsers import Parser
 
 NUM_RE = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
 

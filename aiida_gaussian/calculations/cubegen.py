@@ -2,9 +2,9 @@
 """Gaussian input plugin."""
 from __future__ import absolute_import
 
-from aiida.orm import Dict, RemoteData, Str, Int, Bool, SinglefileData
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
+from aiida.orm import Bool, Dict, Int, RemoteData, SinglefileData, Str
 
 
 class CubegenCalculation(CalcJob):

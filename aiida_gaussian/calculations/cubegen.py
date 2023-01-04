@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Gaussian input plugin."""
-from __future__ import absolute_import
 
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
@@ -42,7 +40,7 @@ class CubegenCalculation(CalcJob):
 
     @classmethod
     def define(cls, spec):
-        super(CubegenCalculation, cls).define(spec)
+        super().define(spec)
 
         spec.input(
             "parameters",

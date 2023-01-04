@@ -62,7 +62,7 @@ class Cube:
         c.cell_n = np.empty(3, dtype=int)
         c.cell = np.empty((3, 3))
         for i in range(3):
-            n, x, y, z = [float(s) for s in f.readline().split()]
+            n, x, y, z = (float(s) for s in f.readline().split())
             c.cell_n[i] = int(n)
             c.cell[i] = n * np.array([x, y, z])
 
@@ -98,7 +98,7 @@ class Cube:
 
     @classmethod
     def from_file(cls, filepath, read_data=True):
-        with open(filepath, 'r') as f:
+        with open(filepath) as f:
             c = cls.from_file_handle(f, read_data=read_data)
         return c
 

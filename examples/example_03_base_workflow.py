@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 """Run simple DFT calculation"""
 
-from __future__ import absolute_import, print_function
 
 import sys
 

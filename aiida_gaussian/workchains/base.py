@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Base work chain to run a Gaussian calculation."""
 
 from aiida.common import AttributeDict
@@ -23,7 +22,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
     @classmethod
     def define(cls, spec):
 
-        super(GaussianBaseWorkChain, cls).define(spec)
+        super().define(spec)
         spec.expose_inputs(GaussianCalculation, namespace='gaussian')
 
         spec.outline(
@@ -55,7 +54,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         This `self.ctx.inputs` dictionary will be used by the `BaseRestartWorkChain` to
         submit the calculations in the internal loop.
         """
-        super(GaussianBaseWorkChain, self).setup()
+        super().setup()
         self.ctx.inputs = AttributeDict(self.exposed_inputs(GaussianCalculation, 'gaussian'))
 
     @process_handler(

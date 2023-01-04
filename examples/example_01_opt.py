@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 """Run simple DFT calculation"""
 
-from __future__ import absolute_import, print_function
 
 import sys
 
@@ -75,7 +73,7 @@ def cli(codelabel):
     try:
         code = Code.get_from_string(codelabel)
     except NotExistent:
-        print("The code '{}' does not exist".format(codelabel))
+        print(f"The code '{codelabel}' does not exist")
         sys.exit(1)
     example_dft(code)
 

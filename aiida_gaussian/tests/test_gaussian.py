@@ -1,7 +1,6 @@
 """ Tests for gaussian plugin
 
 """
-from __future__ import absolute_import, print_function
 
 import os
 
@@ -83,7 +82,7 @@ def test_gaussian(fixture_code):
     with sandbox_folder.open('aiida.inp') as handle:
         input_written = handle.read()
 
-    with open(expected_inp_file, 'r') as f:
+    with open(expected_inp_file) as f:
         expected_inp = f.read()
 
     assert (input_written == expected_inp)

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Gaussian input plugin."""
-from __future__ import absolute_import
 
 import pymatgen.io.gaussian as mgaus
 from aiida.common import CalcInfo, CodeInfo
@@ -46,7 +44,7 @@ class GaussianCalculation(CalcJob):
 
     @classmethod
     def define(cls, spec):
-        super(GaussianCalculation, cls).define(spec)
+        super().define(spec)
 
         # Input parameters
         spec.input(

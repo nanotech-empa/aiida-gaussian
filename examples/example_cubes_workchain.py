@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 """
 Run the Gaussian cubes workchain
 """
 
-from __future__ import absolute_import, print_function
 
 import sys
 
@@ -107,7 +105,7 @@ def cli(gaussian_codelabel, formchk_codelabel, cubegen_codelabel):
         try:
             codes.append(Code.get_from_string(codelabel))
         except NotExistent:
-            print("The code '{}' does not exist".format(codelabel))
+            print(f"The code '{codelabel}' does not exist")
             sys.exit(1)
 
     example(codes[0], codes[1], codes[2])

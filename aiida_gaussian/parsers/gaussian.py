@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """AiiDA-Gaussian output parser"""
-from __future__ import absolute_import
 
 import io
 import re
@@ -40,7 +38,7 @@ class GaussianBaseParser(Parser):
 
         try:
             log_file_string = out_folder.base.repository.get_object_content(fname)
-        except IOError:
+        except OSError:
             return self.exit_codes.ERROR_OUTPUT_LOG_READ
 
         exit_code = self._parse_log(log_file_string, self.node.inputs)

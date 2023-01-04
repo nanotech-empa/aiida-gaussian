@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Gaussian formchk plugin."""
-from __future__ import absolute_import
 
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
@@ -18,7 +16,7 @@ class FormchkCalculation(CalcJob):
 
     @classmethod
     def define(cls, spec):
-        super(FormchkCalculation, cls).define(spec)
+        super().define(spec)
 
         spec.input(
             'parent_calc_folder',

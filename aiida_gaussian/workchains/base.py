@@ -49,7 +49,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
 
     def setup(self):
         """Call the `setup` and create the inputs dictionary in `self.ctx.inputs`.
-        
+
         This `self.ctx.inputs` dictionary will be used by the `BaseRestartWorkChain` to
         submit the calculations in the internal loop.
         """

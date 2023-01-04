@@ -32,7 +32,7 @@ parameters = {
     },
     'input_parameters': { # appended at the end of the input
         'output.wfx':None
-    }, 
+    },
 }
 ```
 In `route_parameters`, specifying `key: None` adds only `key` without the equals sign to the input script.
@@ -56,7 +56,7 @@ A quick demo of how to submit a calculation:
 verdi daemon start # make sure the daemon is running
 cd examples
 # Submit test calculation (argument is the label of gaussian code)
-verdi run example_01_opt.py gaussian09 
+verdi run example_01_opt.py gaussian09
 ```
 
 ## For maintainers

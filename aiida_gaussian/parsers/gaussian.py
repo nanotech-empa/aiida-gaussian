@@ -24,7 +24,7 @@ NUM_RE = r"[-+]?(?:[0-9]*[.])?[0-9]+(?:[eE][-+]?\d+)?"
 class GaussianBaseParser(Parser):
     """
     Basic AiiDA parser for the output of Gaussian
-    
+
     Parses default cclib output as 'output_parameters' node and separates final SCF
     energy as 'energy_ev' and output structure as 'output_structure' (if applicable)
     """

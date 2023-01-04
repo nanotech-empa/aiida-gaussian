@@ -106,7 +106,7 @@ class CubegenBaseParser(Parser):
         self.out('cube_planes_array', out_array)
 
     def _orient_cube(self, cube):
-        """Swap cube axes such that 
+        """Swap cube axes such that
         index 0 has the longest-spanning dimension
         index 2 has the "flattest" dimension
         """

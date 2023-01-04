@@ -17,7 +17,7 @@ StructureData = DataFactory("core.structure")
 class GaussianCalculation(CalcJob):
     """
     AiiDA calculation plugin wrapping Gaussian
-    
+
     Template:
 
     parameters = Dict(dict={

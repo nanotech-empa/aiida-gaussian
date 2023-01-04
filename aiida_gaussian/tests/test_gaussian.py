@@ -78,7 +78,7 @@ def test_gaussian(fixture_code):
 
     sandbox_folder = SandboxFolder()
 
-    calc_info = process.prepare_for_submission(sandbox_folder)
+    process.prepare_for_submission(sandbox_folder)
 
     with sandbox_folder.open('aiida.inp') as handle:
         input_written = handle.read()

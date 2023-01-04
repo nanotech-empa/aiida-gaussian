@@ -7,7 +7,7 @@ import sys
 import click
 import pymatgen as mg
 from aiida.common import NotExistent
-from aiida.engine import run, submit
+from aiida.engine import submit
 from aiida.orm import Code, Dict, StructureData
 from aiida.plugins import CalculationFactory
 

@@ -84,7 +84,7 @@ class Cube:
             if section_headers:
                 f.readline()
 
-            for i, line in enumerate(f):
+            for line in f:
                 ls = line.split()
                 c.data[cursor : cursor + len(ls)] = ls
                 cursor += len(ls)

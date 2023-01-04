@@ -2,7 +2,7 @@
 
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
-from aiida.orm import Bool, Dict, Int, RemoteData, SinglefileData, Str
+from aiida.orm import Bool, Dict, Int, RemoteData, SinglefileData
 
 
 class CubegenCalculation(CalcJob):

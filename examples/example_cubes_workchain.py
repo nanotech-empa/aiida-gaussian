@@ -11,8 +11,8 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 from aiida.common import NotExistent
-from aiida.engine import run, run_get_node
-from aiida.orm import Bool, Code, Dict, Float, Int, List, StructureData
+from aiida.engine import run_get_node
+from aiida.orm import Bool, Code, Dict, Float, List, StructureData
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
 GaussianCalculation = CalculationFactory("gaussian")

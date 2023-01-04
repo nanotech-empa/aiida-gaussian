@@ -4,9 +4,7 @@
 
 import os
 
-from aiida.common import NotExistent
-from aiida.engine import run
-from aiida.orm import Code, Dict, StructureData
+from aiida.orm import Dict, StructureData
 from aiida.plugins import CalculationFactory
 from pymatgen.core import Molecule
 

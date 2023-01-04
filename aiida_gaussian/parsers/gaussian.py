@@ -6,8 +6,7 @@ import re
 import ase
 import cclib
 import numpy as np
-import pymatgen.io.gaussian as mgaus
-from aiida.common import NotExistent, OutputParsingError
+from aiida.common import NotExistent
 from aiida.engine import ExitCode
 from aiida.orm import Dict, Float, StructureData
 from aiida.parsers import Parser

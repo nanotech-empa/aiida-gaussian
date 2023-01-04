@@ -7,7 +7,7 @@ import sys
 import click
 import pymatgen as mg
 from aiida.common import NotExistent
-from aiida.engine import run, run_get_node
+from aiida.engine import run_get_node
 from aiida.orm import Code, Dict, StructureData
 from aiida.plugins import WorkflowFactory
 

@@ -2,7 +2,7 @@
 
 from aiida.common import CalcInfo, CodeInfo
 from aiida.engine import CalcJob
-from aiida.orm import Bool, List, RemoteData, SinglefileData, Str
+from aiida.orm import Bool, RemoteData, Str
 
 
 class FormchkCalculation(CalcJob):

@@ -3,18 +3,7 @@ import io
 import ase
 import numpy as np
 from aiida.engine import ExitCode, ToContext, WorkChain
-from aiida.orm import (
-    Bool,
-    Code,
-    Dict,
-    Float,
-    Int,
-    List,
-    RemoteData,
-    SinglefileData,
-    Str,
-    StructureData,
-)
+from aiida.orm import Bool, Code, Dict, Float, List, RemoteData, SinglefileData, Str
 from aiida.plugins import CalculationFactory
 
 FormchkCalculation = CalculationFactory("gaussian.formchk")

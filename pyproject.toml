@@ -45,9 +45,7 @@ testing = [
     "coveralls",
 ]
 pre-commit = [
-    "astroid>=2.2.5",
-    "pre-commit>=2.7.1",
-    "pylint>=2.5.1",
+    "pre-commit>=2.21.0",
 ]
 dev = [
     "bumpver==2022.1119",

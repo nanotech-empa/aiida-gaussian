@@ -1,11 +1,9 @@
-# Install pre-commit hooks via:
-# pre-commit install
-
-# yapf = yet another python formatter
+---
 repos:
-- repo: https://github.com/pre-commit/mirrors-yapf
-  rev: v0.28.0
-  hooks:
-  - id: yapf
-    name: yapf
-    args: ["-i"]
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.4.0
+      hooks:
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+          - id: check-yaml
+          - id: check-added-large-files

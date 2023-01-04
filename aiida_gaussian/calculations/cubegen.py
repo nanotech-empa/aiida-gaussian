@@ -46,14 +46,14 @@ class CubegenCalculation(CalcJob):
             "parameters",
             valid_type=Dict,
             required=True,
-            help='dictionary containing entries for cubes to be printed.'
+            help="dictionary containing entries for cubes to be printed.",
         )
 
         spec.input(
-            'parent_calc_folder',
+            "parent_calc_folder",
             valid_type=RemoteData,
             required=True,
-            help='the folder of a containing the .fchk'
+            help="the folder of a containing the .fchk",
         )
 
         spec.input(
@@ -64,11 +64,11 @@ class CubegenCalculation(CalcJob):
         )
 
         spec.input(
-            'retrieve_cubes',
+            "retrieve_cubes",
             valid_type=Bool,
             required=False,
             default=lambda: Bool(False),
-            help='should the cubes be retrieved?'
+            help="should the cubes be retrieved?",
         )
 
         spec.input(
@@ -76,11 +76,11 @@ class CubegenCalculation(CalcJob):
             valid_type=Int,
             required=False,
             default=lambda: Int(1024),
-            help="Set the GAUSS_MEMDEF env variable to set the max memory in MB."
+            help="Set the GAUSS_MEMDEF env variable to set the max memory in MB.",
         )
 
         # Turn mpi off by default
-        spec.input('metadata.options.withmpi', valid_type=bool, default=False)
+        spec.input("metadata.options.withmpi", valid_type=bool, default=False)
 
         spec.input(
             "metadata.options.parser_name",
@@ -120,7 +120,7 @@ class CubegenCalculation(CalcJob):
 
         if "stencil" in self.inputs:
             calcinfo.local_copy_list.append(
-                (self.inputs.stencil.uuid, self.inputs.stencil.filename, 'stencil.txt')
+                (self.inputs.stencil.uuid, self.inputs.stencil.filename, "stencil.txt")
             )
 
         for key, params in self.inputs.parameters.get_dict().items():
@@ -134,15 +134,19 @@ class CubegenCalculation(CalcJob):
 
             codeinfo.cmdline_params = []
             codeinfo.cmdline_params.append(
-                str(self.inputs.metadata.options.resources['tot_num_mpiprocs'])
+                str(self.inputs.metadata.options.resources["tot_num_mpiprocs"])
             )
             codeinfo.cmdline_params.append(kind_str)
-            codeinfo.cmdline_params.append(self.PARENT_FOLDER_NAME + "/" + self.DEFAULT_INPUT_FILE)
+            codeinfo.cmdline_params.append(
+                self.PARENT_FOLDER_NAME + "/" + self.DEFAULT_INPUT_FILE
+            )
             codeinfo.cmdline_params.append(cube_name)
 
             if npts == -1:
-                if 'stencil' not in self.inputs:
-                    self.report("Warning: npts: -1 set but no stencil provided, using -2")
+                if "stencil" not in self.inputs:
+                    self.report(
+                        "Warning: npts: -1 set but no stencil provided, using -2"
+                    )
                     codeinfo.cmdline_params.append("-2")
                 else:
                     codeinfo.cmdline_params.append(str(npts))

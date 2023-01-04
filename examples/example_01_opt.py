@@ -11,37 +11,39 @@ from aiida.engine import run, run_get_node
 from aiida.orm import Code, Dict, StructureData
 from aiida.plugins import CalculationFactory
 
-GaussianCalculation = CalculationFactory('gaussian')
+GaussianCalculation = CalculationFactory("gaussian")
 
 
 def example_dft(gaussian_code):
     """Run a simple gaussian optimization"""
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./ch4.xyz'))
+    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file("./ch4.xyz"))
 
     num_cores = 1
     memory_mb = 300
 
     # Main parameters: geometry optimization
-    parameters = Dict({
-        'link0_parameters': {
-            '%chk': 'aiida.chk',
-            '%mem': "%dMB" % memory_mb,
-            '%nprocshared': num_cores,
-        },
-        'functional': 'BLYP',
-        'basis_set': '6-31g',
-        'charge': 0,
-        'multiplicity': 1,
-        'route_parameters': {
-            'scf': {
-                'cdiis': None,
+    parameters = Dict(
+        {
+            "link0_parameters": {
+                "%chk": "aiida.chk",
+                "%mem": "%dMB" % memory_mb,
+                "%nprocshared": num_cores,
             },
-            'nosymm': None,
-            'opt': None,
-        },
-    })
+            "functional": "BLYP",
+            "basis_set": "6-31g",
+            "charge": 0,
+            "multiplicity": 1,
+            "route_parameters": {
+                "scf": {
+                    "cdiis": None,
+                },
+                "nosymm": None,
+                "opt": None,
+            },
+        }
+    )
 
     # Construct process builder
 
@@ -63,11 +65,11 @@ def example_dft(gaussian_code):
     print("Running calculation...")
     res, _node = run_get_node(builder)
 
-    print("Final scf energy: %.4f" % res['output_parameters']['scfenergies'][-1])
+    print("Final scf energy: %.4f" % res["output_parameters"]["scfenergies"][-1])
 
 
-@click.command('cli')
-@click.argument('codelabel', default='gaussian@localhost')
+@click.command("cli")
+@click.argument("codelabel", default="gaussian@localhost")
 def cli(codelabel):
     """Click interface"""
     try:
@@ -78,5 +80,5 @@ def cli(codelabel):
     example_dft(code)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

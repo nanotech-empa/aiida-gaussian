@@ -15,8 +15,8 @@ from aiida.engine import run, run_get_node
 from aiida.orm import Bool, Code, Dict, Float, Int, List, StructureData
 from aiida.plugins import CalculationFactory, WorkflowFactory
 
-GaussianCalculation = CalculationFactory('gaussian')
-GaussianCubesWorkChain = WorkflowFactory('gaussian.cubes')
+GaussianCalculation = CalculationFactory("gaussian")
+GaussianCubesWorkChain = WorkflowFactory("gaussian.cubes")
 
 
 def example(gaussian_code, formchk_code, cubegen_code):
@@ -33,25 +33,27 @@ def example(gaussian_code, formchk_code, cubegen_code):
     builder = GaussianCalculation.get_builder()
     builder.code = gaussian_code
     builder.structure = struct_node
-    builder.parameters = Dict({
-        'link0_parameters': {
-            '%chk': 'aiida.chk',
-            '%mem': "%dMB" % memory_mb,
-            '%nprocshared': str(num_cores),
-        },
-        'functional': 'UB3LYP',
-        'basis_set': '6-31g',
-        'charge': 0,
-        'multiplicity': 1,
-        'route_parameters': {
-            'scf': {
-                'cdiis': None,
+    builder.parameters = Dict(
+        {
+            "link0_parameters": {
+                "%chk": "aiida.chk",
+                "%mem": "%dMB" % memory_mb,
+                "%nprocshared": str(num_cores),
             },
-            'guess': 'mix',
-            'nosymm': None,
-            'sp': None,
-        },
-    })
+            "functional": "UB3LYP",
+            "basis_set": "6-31g",
+            "charge": 0,
+            "multiplicity": 1,
+            "route_parameters": {
+                "scf": {
+                    "cdiis": None,
+                },
+                "guess": "mix",
+                "nosymm": None,
+                "sp": None,
+            },
+        }
+    )
     builder.metadata.options.resources = {
         "tot_num_mpiprocs": num_cores,
         "num_machines": 1,
@@ -69,7 +71,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
         formchk_code=formchk_code,
         cubegen_code=cubegen_code,
         gaussian_calc_folder=calc_node.outputs.remote_folder,
-        gaussian_output_params=res['output_parameters'],
+        gaussian_output_params=res["output_parameters"],
         orbital_indexes=List(list=[0, 1]),
         dx=Float(0.2),
         edge_space=Float(2.5),
@@ -79,25 +81,25 @@ def example(gaussian_code, formchk_code, cubegen_code):
     assert wc_node.is_finished_ok
 
     # Plot cube planes
-    res = wc_node.outputs['cube_planes_array']
-    h_arr = res.get_array('h_arr')
+    res = wc_node.outputs["cube_planes_array"]
+    h_arr = res.get_array("h_arr")
     for aname in res.get_arraynames():
         if aname.startswith("cube_"):
             h = h_arr[0]
             data = res.get_array(aname)[:, :, 0].T
             amax = np.max(np.abs(data))
-            plt.imshow(data, vmin=-amax, vmax=amax, cmap='seismic')
-            plt.axis('off')
+            plt.imshow(data, vmin=-amax, vmax=amax, cmap="seismic")
+            plt.axis("off")
             filename = f"./{aname}_h{h:.1f}.png"
-            plt.savefig(filename, dpi=200, bbox_inches='tight')
+            plt.savefig(filename, dpi=200, bbox_inches="tight")
             plt.close()
             print("Saved %s!" % filename)
 
 
-@click.command('cli')
-@click.argument('gaussian_codelabel')
-@click.argument('formchk_codelabel')
-@click.argument('cubegen_codelabel')
+@click.command("cli")
+@click.argument("gaussian_codelabel")
+@click.argument("formchk_codelabel")
+@click.argument("cubegen_codelabel")
 def cli(gaussian_codelabel, formchk_codelabel, cubegen_codelabel):
     """Click interface"""
     codes = []
@@ -111,5 +113,5 @@ def cli(gaussian_codelabel, formchk_codelabel, cubegen_codelabel):
     example(codes[0], codes[1], codes[2])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

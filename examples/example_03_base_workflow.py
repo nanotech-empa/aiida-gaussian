@@ -11,7 +11,7 @@ from aiida.engine import run, run_get_node
 from aiida.orm import Code, Dict, StructureData
 from aiida.plugins import WorkflowFactory
 
-GaussianBaseWorkChain = WorkflowFactory('gaussian.base')
+GaussianBaseWorkChain = WorkflowFactory("gaussian.base")
 
 
 def example_dft(gaussian_code):
@@ -22,37 +22,39 @@ def example_dft(gaussian_code):
     """
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file('./c2h6.xyz'))
+    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file("./c2h6.xyz"))
 
     num_cores = 2
     memory_mb = 300
 
     # Main parameters: geometry optimization
-    parameters = Dict({
-        'link0_parameters': {
-            '%chk': 'aiida.chk',
-            '%mem': "%dMB" % memory_mb,
-            '%nprocshared': num_cores,
-        },
-        'functional': 'B3LYP',
-        'basis_set': '6-31g',
-        'charge': 0,
-        'multiplicity': 1,
-        'route_parameters': {
-            'scf': {
-                'conver': 7,
-                'maxcycle': 140,
+    parameters = Dict(
+        {
+            "link0_parameters": {
+                "%chk": "aiida.chk",
+                "%mem": "%dMB" % memory_mb,
+                "%nprocshared": num_cores,
             },
-            'sp': None,
-        },
-    })
+            "functional": "B3LYP",
+            "basis_set": "6-31g",
+            "charge": 0,
+            "multiplicity": 1,
+            "route_parameters": {
+                "scf": {
+                    "conver": 7,
+                    "maxcycle": 140,
+                },
+                "sp": None,
+            },
+        }
+    )
 
     # Construct process builder
 
     builder = GaussianBaseWorkChain.get_builder()
 
     # Handle the ASyTop error
-    builder.handler_overrides = Dict({'handle_asytop_error': True})
+    builder.handler_overrides = Dict({"handle_asytop_error": True})
 
     builder.gaussian.structure = structure
     builder.gaussian.parameters = parameters
@@ -70,11 +72,11 @@ def example_dft(gaussian_code):
     print("Running calculation...")
     res, _node = run_get_node(builder)
 
-    print("Final scf energy: %.4f" % res['output_parameters']['scfenergies'][-1])
+    print("Final scf energy: %.4f" % res["output_parameters"]["scfenergies"][-1])
 
 
-@click.command('cli')
-@click.argument('codelabel', default='gaussian@localhost')
+@click.command("cli")
+@click.argument("codelabel", default="gaussian@localhost")
 def cli(codelabel):
     """Click interface"""
     try:
@@ -85,5 +87,5 @@ def cli(codelabel):
     example_dft(code)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()  # pylint: disable=no-value-for-parameter

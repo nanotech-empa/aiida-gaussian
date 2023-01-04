@@ -10,8 +10,8 @@ from aiida.engine import (
 from aiida.orm import Dict
 from aiida.plugins import CalculationFactory, DataFactory
 
-GaussianCalculation = CalculationFactory('gaussian')
-StructureData = DataFactory('core.structure')
+GaussianCalculation = CalculationFactory("gaussian")
+StructureData = DataFactory("core.structure")
 
 
 class GaussianBaseWorkChain(BaseRestartWorkChain):
@@ -23,7 +23,7 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
     def define(cls, spec):
 
         super().define(spec)
-        spec.expose_inputs(GaussianCalculation, namespace='gaussian')
+        spec.expose_inputs(GaussianCalculation, namespace="gaussian")
 
         spec.outline(
             cls.setup,
@@ -38,14 +38,14 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
 
         spec.exit_code(
             350,
-            'ERROR_UNRECOVERABLE_SCF_FAILURE',
-            message='The calculation failed with an unrecoverable SCF convergence error.'
+            "ERROR_UNRECOVERABLE_SCF_FAILURE",
+            message="The calculation failed with an unrecoverable SCF convergence error.",
         )
 
         spec.exit_code(
             399,
-            'ERROR_UNRECOVERABLE_TERMINATION',
-            message='The calculation failed with an unrecoverable error.'
+            "ERROR_UNRECOVERABLE_TERMINATION",
+            message="The calculation failed with an unrecoverable error.",
         )
 
     def setup(self):
@@ -55,14 +55,16 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         submit the calculations in the internal loop.
         """
         super().setup()
-        self.ctx.inputs = AttributeDict(self.exposed_inputs(GaussianCalculation, 'gaussian'))
+        self.ctx.inputs = AttributeDict(
+            self.exposed_inputs(GaussianCalculation, "gaussian")
+        )
 
     @process_handler(
         priority=400,
         exit_codes=[
             GaussianCalculation.exit_codes.ERROR_SCF_FAILURE,
-            GaussianCalculation.exit_codes.ERROR_INACCURATE_QUADRATURE_CALDSU
-        ]
+            GaussianCalculation.exit_codes.ERROR_INACCURATE_QUADRATURE_CALDSU,
+        ],
     )
     def handle_scf_failure(self, node):
         """
@@ -73,36 +75,40 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         """
 
         params = dict(self.ctx.inputs.parameters)
-        route_params = params['route_parameters']
+        route_params = params["route_parameters"]
 
-        if 'scf' not in route_params:
-            route_params['scf'] = {}
+        if "scf" not in route_params:
+            route_params["scf"] = {}
 
-        if 'xqc' in route_params['scf']:
+        if "xqc" in route_params["scf"]:
             # XQC and YQC failed:
             self.report("SCF failed with YQC and XQC, giving up...")
-            return ProcessHandlerReport(True, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE)  # pylint: disable=no-member
+            return ProcessHandlerReport(
+                True, self.exit_codes.ERROR_UNRECOVERABLE_SCF_FAILURE
+            )  # pylint: disable=no-member
 
         new_scf = {}
         # keep the user-set convergence criterion; replace rest
-        if 'conver' in route_params['scf']:
-            new_scf['conver'] = route_params['scf']['conver']
+        if "conver" in route_params["scf"]:
+            new_scf["conver"] = route_params["scf"]["conver"]
 
-        if 'yqc' in route_params['scf']:
+        if "yqc" in route_params["scf"]:
             self.report("SCF=(YQC) failed, retrying with SCF=(XQC)")
-            new_scf['xqc'] = None
+            new_scf["xqc"] = None
         else:
             self.report("SCF failed, retrying with SCF=(YQC)")
-            new_scf['yqc'] = None
+            new_scf["yqc"] = None
 
         # Update the params Dict
-        route_params['scf'] = new_scf
+        route_params["scf"] = new_scf
         self.ctx.inputs.parameters = Dict(params)
 
         return ProcessHandlerReport(True)
 
     @process_handler(
-        priority=500, exit_codes=[GaussianCalculation.exit_codes.ERROR_ASYTOP], enabled=False
+        priority=500,
+        exit_codes=[GaussianCalculation.exit_codes.ERROR_ASYTOP],
+        enabled=False,
     )
     def handle_asytop_error(self, node):
         """Handle the error code 302 (ASYTOP)."""
@@ -115,14 +121,17 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         return ProcessHandlerReport(True)
 
     @process_handler(
-        priority=0, exit_codes=[GaussianCalculation.exit_codes.ERROR_NO_NORMAL_TERMINATION]
+        priority=0,
+        exit_codes=[GaussianCalculation.exit_codes.ERROR_NO_NORMAL_TERMINATION],
     )
     def handle_misc_failure(self, node):
         """
         By default, the BaseRestartWorkChain restarts any unhandled error once
         Disable this feature for the exit_code that corresponds to out-of-time
         """
-        return ProcessHandlerReport(False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION)  # pylint: disable=no-member
+        return ProcessHandlerReport(
+            False, self.exit_codes.ERROR_UNRECOVERABLE_TERMINATION
+        )  # pylint: disable=no-member
 
     def results(self):
         """Overload the method such that each dynamic output of GaussianCalculation is set."""
@@ -134,12 +143,14 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
         max_iterations = self.inputs.max_iterations.value  # type: ignore[union-attr]
         if not self.ctx.is_finished and self.ctx.iteration >= max_iterations:
             self.report(
-                f'reached the maximum number of iterations {max_iterations}: '
-                f'last ran {self.ctx.process_name}<{node.pk}>'
+                f"reached the maximum number of iterations {max_iterations}: "
+                f"last ran {self.ctx.process_name}<{node.pk}>"
             )
-            return self.exit_codes.ERROR_MAXIMUM_ITERATIONS_EXCEEDED  # pylint: disable=no-member
+            return (
+                self.exit_codes.ERROR_MAXIMUM_ITERATIONS_EXCEEDED
+            )  # pylint: disable=no-member
 
-        self.report(f'The work chain completed after {self.ctx.iteration} iterations')
+        self.report(f"The work chain completed after {self.ctx.iteration} iterations")
 
         self.out_many({key: node.outputs[key] for key in node.outputs})
 

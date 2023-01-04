@@ -25,11 +25,13 @@ class CubegenBaseParser(Parser):
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
 
-        retrieve_temp_list_input = self.node.get_attribute('retrieve_temporary_list', None)
+        retrieve_temp_list_input = self.node.get_attribute(
+            "retrieve_temporary_list", None
+        )
         # If temporary files were specified, check that we have them
         if retrieve_temp_list_input:
             try:
-                retrieved_temp_folder_path = kwargs['retrieved_temporary_folder']
+                retrieved_temp_folder_path = kwargs["retrieved_temporary_folder"]
                 # create a folderdata object to treat this the same way
                 temp_fd = FolderData(tree=retrieved_temp_folder_path)
                 retrieved_folders.append(temp_fd)
@@ -47,15 +49,15 @@ class CubegenBaseParser(Parser):
 
     def _parse_folders(self, retrieved_folders, parser_params):
 
-        if 'heights' in parser_params:
-            heights = parser_params['heights']
+        if "heights" in parser_params:
+            heights = parser_params["heights"]
         else:
             heights = [2.0]
 
         # By default, don't re-orient cube
         orient_cube = False
-        if 'orient_cube' in parser_params:
-            orient_cube = parser_params['orient_cube']
+        if "orient_cube" in parser_params:
+            orient_cube = parser_params["orient_cube"]
 
         out_array = ArrayData()
 
@@ -81,7 +83,9 @@ class CubegenBaseParser(Parser):
                             if cube_data is None:
                                 cube_data = cube_plane
                             else:
-                                cube_data = np.concatenate((cube_data, cube_plane), axis=2)
+                                cube_data = np.concatenate(
+                                    (cube_data, cube_plane), axis=2
+                                )
                             h_added.append(h)
                         except IndexError:
                             pass
@@ -90,18 +94,19 @@ class CubegenBaseParser(Parser):
                         # None of the heights were inside the calculated box
                         return
 
-                    arr_label = "cube_" + os.path.splitext(filename)[0].replace('-', ''
-                                                                                ).replace('+', '')
+                    arr_label = "cube_" + os.path.splitext(filename)[0].replace(
+                        "-", ""
+                    ).replace("+", "")
 
                     out_array.set_array(arr_label, cube_data)
 
                     if add_suppl:
-                        out_array.set_array('x_arr', cube.x_arr_ang)
-                        out_array.set_array('y_arr', cube.y_arr_ang)
-                        out_array.set_array('h_arr', np.array(h_added))
+                        out_array.set_array("x_arr", cube.x_arr_ang)
+                        out_array.set_array("y_arr", cube.y_arr_ang)
+                        out_array.set_array("h_arr", np.array(h_added))
                         add_suppl = False
 
-        self.out('cube_planes_array', out_array)
+        self.out("cube_planes_array", out_array)
 
     def _orient_cube(self, cube):
         """Swap cube axes such that

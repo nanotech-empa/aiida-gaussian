@@ -4,6 +4,7 @@ repos:
       rev: v4.4.0
       hooks:
           - id: end-of-file-fixer
+            exclude: ^.*data/
           - id: trailing-whitespace
           - id: check-yaml
           - id: check-added-large-files

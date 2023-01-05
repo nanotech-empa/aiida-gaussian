@@ -1,60 +1,61 @@
+---
 name: build
 
 on: [push, pull_request]
 
 jobs:
 
-  pre-commit:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install python dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -e .[pre-commit]
-    - name: Run pre-commit
-      run: |
-        pre-commit install
-        pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
+    pre-commit:
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@v1
+            - name: Set up Python 3.8
+              uses: actions/setup-python@v1
+              with:
+                  python-version: 3.8
+            - name: Install python dependencies
+              run: |
+                  pip install --upgrade pip
+                  pip install -e .[pre-commit]
+            - name: Run pre-commit
+              run: |
+                  pre-commit install
+                  pre-commit run --all-files || ( git status --short ; git diff ; exit 1 )
 
-  tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      postgres:
-        image: postgres:12
-        ports:
-          - 5432:5432
-      rabbitmq:
-        image: rabbitmq:latest
-        ports:
-          - 5672:5672
-    strategy:
-      matrix:
-        python-version: [3.8]
-    steps:
-    - uses: actions/checkout@v2
+    tests:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        services:
+            postgres:
+                image: postgres:12
+                ports:
+                    - 5432:5432
+            rabbitmq:
+                image: rabbitmq:latest
+                ports:
+                    - 5672:5672
+        strategy:
+            matrix:
+                python-version: [3.8]
+        steps:
+            - uses: actions/checkout@v2
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v2
+              with:
+                  python-version: ${{ matrix.python-version }}
 
-    - name: Install python dependencies
-      run: |
-        pip install --upgrade pip
-        pip install -e .[testing]
+            - name: Install python dependencies
+              run: |
+                  pip install --upgrade pip
+                  pip install -e .[testing]
 
-    - name: Run test suite
-      env:
+            - name: Run test suite
+              env:
         # show timings of tests
-        PYTEST_ADDOPTS: "--durations=0"
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-      run: |
-        py.test --cov aiida_gaussian --cov-append .
-        coveralls
+                  PYTEST_ADDOPTS: --durations=0
+                  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+              run: |
+                  py.test --cov aiida_gaussian --cov-append .
+                  coveralls

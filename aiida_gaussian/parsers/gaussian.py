@@ -24,19 +24,15 @@ class GaussianBaseParser(Parser):
 
     def parse(self, **kwargs):
         """Receives in input a dictionary of retrieved nodes. Does all the logic here."""
+        fname = self.node.process_class.OUTPUT_FILE
 
         try:
             out_folder = self.retrieved
+            if fname not in out_folder.base.repository.list_object_names():
+                return self.exit_codes.ERROR_OUTPUT_MISSING
+            log_file_string = out_folder.base.repository.get_object_content(fname)
         except NotExistent:
             return self.exit_codes.ERROR_NO_RETRIEVED_FOLDER
-
-        fname = self.node.process_class.OUTPUT_FILE
-
-        if fname not in out_folder.base.repository.list_object_names():
-            return self.exit_codes.ERROR_OUTPUT_MISSING
-
-        try:
-            log_file_string = out_folder.base.repository.get_object_content(fname)
         except OSError:
             return self.exit_codes.ERROR_OUTPUT_LOG_READ
 

@@ -13,12 +13,14 @@ class Cube:
     Gaussian cube format
     """
 
+    default_origin = np.array([0.0, 0.0, 0.0])
+
     def __init__(
         self,
         title=None,
         comment=None,
         ase_atoms=None,
-        origin=np.array([0.0, 0.0, 0.0]),
+        origin=default_origin,
         cell=None,
         cell_n=None,
         data=None,

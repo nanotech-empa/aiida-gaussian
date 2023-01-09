@@ -1,7 +1,8 @@
 """pytest fixtures for simplified testing."""
-from __future__ import absolute_import
+
 import pytest
-pytest_plugins = ['aiida.manage.tests.pytest_fixtures']
+
+pytest_plugins = ["aiida.manage.tests.pytest_fixtures"]
 
 
 @pytest.fixture
@@ -18,17 +19,17 @@ def fixture_code(fixture_localhost):
 
     def _fixture_code(entry_point_name):
         from aiida.orm import Code
+
         return Code(
             input_plugin_name=entry_point_name,
-            remote_computer_exec=[fixture_localhost, '/bin/true']
+            remote_computer_exec=[fixture_localhost, "/bin/true"],
         )
 
     return _fixture_code
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def gaussian_code(aiida_local_code_factory):
-    """Get a gaussian code.
-    """
-    gaussian_code = aiida_local_code_factory(executable='g09', entry_point='gaussian')
+    """Get a gaussian code."""
+    gaussian_code = aiida_local_code_factory(executable="g09", entry_point="gaussian")
     return gaussian_code

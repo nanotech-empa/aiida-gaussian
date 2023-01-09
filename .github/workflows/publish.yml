@@ -1,41 +1,42 @@
+---
 name: Publish on PyPI
 
 on:
-  push:
-    tags:
+    push:
+        tags:
       # After vMajor.Minor.Patch _anything_ is allowed (without "/") !
-      - v[0-9]+.[0-9]+.[0-9]+*
+            - v[0-9]+.[0-9]+.[0-9]+*
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    if: github.repository == 'nanotech-empa/aiida-gaussian' && startsWith(github.ref, 'refs/tags/v')
+    publish:
+        runs-on: ubuntu-latest
+        if: github.repository == 'nanotech-empa/aiida-gaussian' && startsWith(github.ref, 'refs/tags/v')
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
+            - name: Set up Python 3.8
+              uses: actions/setup-python@v1
+              with:
+                  python-version: 3.8
 
-    - name: Install pypa/build
-      run: |
-        python -m pip install build
+            - name: Install pypa/build
+              run: |
+                  python -m pip install build
 
-    - name: Build source distribution
-      run: python -m build . --wheel --sdist
+            - name: Build source distribution
+              run: python -m build . --wheel --sdist
 
-    - uses: softprops/action-gh-release@v0.1.14
-      name: Create release
-      with:
-          files: |
-              dist/*
-          generate_release_notes: true
+            - uses: softprops/action-gh-release@v0.1.14
+              name: Create release
+              with:
+                  files: |
+                      dist/*
+                  generate_release_notes: true
 
-    - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_TOKEN }}
+            - name: Publish package to PyPI
+              uses: pypa/gh-action-pypi-publish@release/v1
+              with:
+                  user: __token__
+                  password: ${{ secrets.PYPI_TOKEN }}

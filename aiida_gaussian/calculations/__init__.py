@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
-from .gaussian import GaussianCalculation
-from .formchk import FormchkCalculation
 from .cubegen import CubegenCalculation
+from .formchk import FormchkCalculation
+from .gaussian import GaussianCalculation
+
+__all__ = ["CubegenCalculation", "FormchkCalculation", "GaussianCalculation"]

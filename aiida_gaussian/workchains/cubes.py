@@ -1,20 +1,16 @@
 import io
+
 import ase
-
 import numpy as np
-
-from aiida.engine import WorkChain, ToContext, ExitCode
-from aiida.orm import Int, Float, Str, Bool, Code, Dict, List
-from aiida.orm import SinglefileData, StructureData, RemoteData
-
+from aiida.engine import ExitCode, ToContext, WorkChain
+from aiida.orm import Bool, Code, Dict, Float, List, RemoteData, SinglefileData, Str
 from aiida.plugins import CalculationFactory
 
-FormchkCalculation = CalculationFactory('gaussian.formchk')
-CubegenCalculation = CalculationFactory('gaussian.cubegen')
+FormchkCalculation = CalculationFactory("gaussian.formchk")
+CubegenCalculation = CalculationFactory("gaussian.cubegen")
 
 
 class GaussianCubesWorkChain(WorkChain):
-
     @classmethod
     def define(cls, spec):
         super().define(spec)
@@ -23,81 +19,81 @@ class GaussianCubesWorkChain(WorkChain):
         spec.input("cubegen_code", valid_type=Code)
 
         spec.input(
-            'gaussian_calc_folder',
+            "gaussian_calc_folder",
             valid_type=RemoteData,
             required=True,
-            help='The gaussian calculation output folder.'
+            help="The gaussian calculation output folder.",
         )
 
         spec.input(
-            'gaussian_output_params',
+            "gaussian_output_params",
             valid_type=Dict,
             required=True,
-            help='The gaussian calculation output parameters.'
+            help="The gaussian calculation output parameters.",
         )
 
         spec.input(
-            'orbital_indexes',
+            "orbital_indexes",
             valid_type=List,
             required=False,
             default=lambda: List(list=[0, 1]),
-            help='Indexes of the orbital cubes to generate.'
+            help="Indexes of the orbital cubes to generate.",
         )
 
         spec.input(
-            'orbital_index_ref',
+            "orbital_index_ref",
             valid_type=Str,
             required=False,
-            default=lambda: Str('half_num_el'),
-            help="Reference index, possible choices: 'half_num_el', 'abs'."
+            default=lambda: Str("half_num_el"),
+            help="Reference index, possible choices: 'half_num_el', 'abs'.",
         )
 
         spec.input(
-            'natural_orbitals',
+            "natural_orbitals",
             valid_type=Bool,
             required=False,
             default=lambda: Bool(False),
-            help="The cube files are natural orbitals."
+            help="The cube files are natural orbitals.",
         )
 
         spec.input(
-            'generate_density',
+            "generate_density",
             valid_type=Bool,
             required=False,
             default=lambda: Bool(True),
-            help="Generate density cube."
+            help="Generate density cube.",
         )
 
         spec.input(
-            'generate_spin_density',
+            "generate_spin_density",
             valid_type=Bool,
             required=False,
             default=lambda: Bool(True),
-            help="Generate spin density cube (if applicable)."
+            help="Generate spin density cube (if applicable).",
         )
 
         spec.input(
-            'edge_space',
+            "edge_space",
             valid_type=Float,
             required=False,
             default=lambda: Float(3.0),
-            help='Extra cube space in addition to molecule bounding box [ang].'
+            help="Extra cube space in addition to molecule bounding box [ang].",
         )
 
         spec.input(
-            'dx',
+            "dx",
             valid_type=Float,
             required=False,
             default=lambda: Float(0.15),
-            help='Cube file spacing [ang].'
+            help="Cube file spacing [ang].",
         )
 
         spec.input(
-            'retrieve_cubes',
+            "retrieve_cubes",
             valid_type=Bool,
             required=False,
             default=lambda: Bool(False),
-            help='should the cubes be retrieved?'
+            help="should the cubes be retrieved?",
         )
 
         spec.input(
@@ -112,7 +108,7 @@ class GaussianCubesWorkChain(WorkChain):
             valid_type=Dict,
             required=False,
             default=lambda: Dict(dict={}),
-            help='Additional parameters to cubegen parser.'
+            help="Additional parameters to cubegen parser.",
         )
 
         spec.outline(cls.check_input, cls.formchk_step, cls.cubegen_step, cls.finalize)
@@ -133,10 +129,10 @@ class GaussianCubesWorkChain(WorkChain):
 
     def _set_resources(self):
         res = {"tot_num_mpiprocs": 1}
-        if 'lsf' not in self.inputs.formchk_code.computer.scheduler_type:
+        if "lsf" not in self.inputs.formchk_code.computer.scheduler_type:
             # LSF scheduler doesn't work with 'num_machines'
             # other schedulers require num_machines
-            res['num_machines'] = 1
+            res["num_machines"] = 1
         return res
 
     def _check_if_previous_calc_ok(self, prev_calc):
@@ -149,7 +145,7 @@ class GaussianCubesWorkChain(WorkChain):
         return True
 
     def check_input(self):
-        if self.inputs.orbital_index_ref not in ('half_num_el', 'abs'):
+        if self.inputs.orbital_index_ref not in ("half_num_el", "abs"):
             return self.exit_codes.ERROR_INPUT  # pylint: disable=no-member
         return ExitCode(0)
 
@@ -192,7 +188,9 @@ class GaussianCubesWorkChain(WorkChain):
         # --------------------------------------------------------------
         # Create the stencil
 
-        ase_atoms = ase.Atoms(gout_params['atomnos'], positions=gout_params['atomcoords'][0])
+        ase_atoms = ase.Atoms(
+            gout_params["atomnos"], positions=gout_params["atomcoords"][0]
+        )
 
         es = self.inputs.edge_space.value + self.inputs.dx.value
 
@@ -222,15 +220,15 @@ class GaussianCubesWorkChain(WorkChain):
         orb_indexes = list(self.inputs.orbital_indexes)
         abs_orb_indexes = []
 
-        if self.inputs.orbital_index_ref == 'half_num_el':
+        if self.inputs.orbital_index_ref == "half_num_el":
 
-            total_num_electrons = sum(gout_params['num_electrons'])
+            total_num_electrons = sum(gout_params["num_electrons"])
             ref_index = total_num_electrons // 2
 
             for i_orb in orb_indexes:
                 abs_orb_indexes.append(i_orb + ref_index)
 
-        elif self.inputs.orbital_index_ref == 'abs':
+        elif self.inputs.orbital_index_ref == "abs":
             abs_orb_indexes = orb_indexes
 
         # remove negative and 0 indexes
@@ -244,7 +242,7 @@ class GaussianCubesWorkChain(WorkChain):
                     "npts": -1,
                 }
             else:
-                homos = gout_params['homos']
+                homos = gout_params["homos"]
                 # use the cubegen convention, where counting starts from 1
                 homos = [h + 1 for h in homos]
 
@@ -264,13 +262,13 @@ class GaussianCubesWorkChain(WorkChain):
 
         if not self.inputs.natural_orbitals:
             if self.inputs.generate_density:
-                params_dict['density'] = {
+                params_dict["density"] = {
                     "kind": "Density=SCF",
                     "npts": -1,
                 }
             if self.inputs.generate_spin_density:
-                if 'homos' in gout_params and len(gout_params['homos']) == 2:
-                    params_dict['spin'] = {
+                if "homos" in gout_params and len(gout_params["homos"]) == 2:
+                    params_dict["spin"] = {
                         "kind": "Spin=SCF",
                         "npts": -1,
                     }
@@ -297,7 +295,7 @@ class GaussianCubesWorkChain(WorkChain):
         return ToContext(cubegen_node=future)
 
     def finalize(self):
-        """ Set the cubegen outputs as the WC outputs  """
+        """Set the cubegen outputs as the WC outputs"""
 
         if not self._check_if_previous_calc_ok(self.ctx.cubegen_node):
             return self.exit_codes.ERROR_TERMINATION  # pylint: disable=no-member

@@ -2,8 +2,8 @@
 Routines regarding gaussian cube files
 """
 
-import numpy as np
 import ase
+import numpy as np
 
 ANG_TO_BOHR = 1.8897259886
 
@@ -13,15 +13,17 @@ class Cube:
     Gaussian cube format
     """
 
+    default_origin = np.array([0.0, 0.0, 0.0])
+
     def __init__(
         self,
         title=None,
         comment=None,
         ase_atoms=None,
-        origin=np.array([0.0, 0.0, 0.0]),
+        origin=default_origin,
         cell=None,
         cell_n=None,
-        data=None
+        data=None,
     ):
         # pylint: disable=too-many-arguments
         """
@@ -62,7 +64,7 @@ class Cube:
         c.cell_n = np.empty(3, dtype=int)
         c.cell = np.empty((3, 3))
         for i in range(3):
-            n, x, y, z = [float(s) for s in f.readline().split()]
+            n, x, y, z = (float(s) for s in f.readline().split())
             c.cell_n[i] = int(n)
             c.cell[i] = n * np.array([x, y, z])
 
@@ -84,13 +86,13 @@ class Cube:
             if section_headers:
                 f.readline()
 
-            for i, line in enumerate(f):
+            for line in f:
                 ls = line.split()
-                c.data[cursor:cursor + len(ls)] = ls
+                c.data[cursor : cursor + len(ls)] = ls
                 cursor += len(ls)
 
             # Option 2: Takes much more memory (but may be faster)
-            #data = np.array(f.read().split(), dtype=float)
+            # data = np.array(f.read().split(), dtype=float)
 
             c.data = c.data.reshape(c.cell_n)
 
@@ -98,7 +100,7 @@ class Cube:
 
     @classmethod
     def from_file(cls, filepath, read_data=True):
-        with open(filepath, 'r') as f:
+        with open(filepath) as f:
             c = cls.from_file_handle(f, read_data=read_data)
         return c
 
@@ -106,28 +108,29 @@ class Cube:
 
         natoms = len(self.ase_atoms)
 
-        f = open(filename, 'w')
+        f = open(filename, "w")
 
         if self.title is None:
-            f.write(filename + '\n')
+            f.write(filename + "\n")
         else:
-            f.write(self.title + '\n')
+            f.write(self.title + "\n")
 
         if self.comment is None:
-            f.write('cube\n')
+            f.write("cube\n")
         else:
-            f.write(self.comment + '\n')
+            f.write(self.comment + "\n")
 
         dv_br = self.cell / self.data.shape
 
         f.write(
-            "%5d %12.6f %12.6f %12.6f\n" % (natoms, self.origin[0], self.origin[1], self.origin[2])
+            "%5d %12.6f %12.6f %12.6f\n"
+            % (natoms, self.origin[0], self.origin[1], self.origin[2])
         )
 
         for i in range(3):
             f.write(
-                "%5d %12.6f %12.6f %12.6f\n" %
-                (self.data.shape[i], dv_br[i][0], dv_br[i][1], dv_br[i][2])
+                "%5d %12.6f %12.6f %12.6f\n"
+                % (self.data.shape[i], dv_br[i][0], dv_br[i][1], dv_br[i][2])
             )
 
         if natoms > 0:
@@ -136,9 +139,12 @@ class Cube:
             numbers = self.ase_atoms.get_atomic_numbers()
             for i in range(natoms):
                 at_x, at_y, at_z = positions[i]
-                f.write("%5d %12.6f %12.6f %12.6f %12.6f\n" % (numbers[i], 0.0, at_x, at_y, at_z))
+                f.write(
+                    "%5d %12.6f %12.6f %12.6f %12.6f\n"
+                    % (numbers[i], 0.0, at_x, at_y, at_z)
+                )
 
-        self.data.tofile(f, sep='\n', format='%12.6e')
+        self.data.tofile(f, sep="\n", format="%12.6e")
 
         f.close()
 
@@ -149,8 +155,14 @@ class Cube:
 
         self.origin[ax1], self.origin[ax2] = (self.origin[ax2], self.origin[ax1].copy())
 
-        self.cell[:, ax1], self.cell[:, ax2] = (self.cell[:, ax2], self.cell[:, ax1].copy())
-        self.cell[ax1, :], self.cell[ax2, :] = (self.cell[ax2, :], self.cell[ax1, :].copy())
+        self.cell[:, ax1], self.cell[:, ax2] = (
+            self.cell[:, ax2],
+            self.cell[:, ax1].copy(),
+        )
+        self.cell[ax1, :], self.cell[ax2, :] = (
+            self.cell[ax2, :],
+            self.cell[ax1, :].copy(),
+        )
 
         self.data = np.swapaxes(self.data, ax1, ax2)
 
@@ -165,7 +177,9 @@ class Cube:
         plane_z = (height + topmost_atom_z) * ANG_TO_BOHR - self.origin[axis]
 
         plane_index = int(
-            np.round(plane_z / self.cell[axis, axis] * np.shape(self.data)[axis] - 0.499)
+            np.round(
+                plane_z / self.cell[axis, axis] * np.shape(self.data)[axis] - 0.499
+            )
         )
 
         if axis == 0:
@@ -178,7 +192,9 @@ class Cube:
         # returns the index value for a given x coordinate in angstrom
         return int(
             np.round(
-                (x_ang * ANG_TO_BOHR - self.origin[0]) / self.cell[0, 0] * np.shape(self.data)[0]
+                (x_ang * ANG_TO_BOHR - self.origin[0])
+                / self.cell[0, 0]
+                * np.shape(self.data)[0]
             )
         )
 
@@ -186,7 +202,9 @@ class Cube:
         # returns the index value for a given y coordinate in angstrom
         return int(
             np.round(
-                (y_ang * ANG_TO_BOHR - self.origin[1]) / self.cell[1, 1] * np.shape(self.data)[1]
+                (y_ang * ANG_TO_BOHR - self.origin[1])
+                / self.cell[1, 1]
+                * np.shape(self.data)[1]
             )
         )
 
@@ -194,60 +212,65 @@ class Cube:
         # returns the index value for a given z coordinate in angstrom
         return int(
             np.round(
-                (z_ang * ANG_TO_BOHR - self.origin[2]) / self.cell[2, 2] * np.shape(self.data)[2]
+                (z_ang * ANG_TO_BOHR - self.origin[2])
+                / self.cell[2, 2]
+                * np.shape(self.data)[2]
             )
         )
 
     @property
     def dv(self):
-        """ in [ang] """
+        """in [ang]"""
         return self.cell / self.cell_n / ANG_TO_BOHR
 
     @property
     def dv_ang(self):
-        """ in [ang] """
+        """in [ang]"""
         return self.cell / self.cell_n / ANG_TO_BOHR
 
     @property
     def dv_au(self):
-        """ in [au] """
+        """in [au]"""
         return self.cell / self.cell_n
 
     @property
     def x_arr_au(self):
-        """ in [au] """
+        """in [au]"""
         return np.arange(
-            self.origin[0], self.origin[0] + (self.cell_n[0] - 0.5) * self.dv_au[0, 0],
-            self.dv_au[0, 0]
+            self.origin[0],
+            self.origin[0] + (self.cell_n[0] - 0.5) * self.dv_au[0, 0],
+            self.dv_au[0, 0],
         )
 
     @property
     def y_arr_au(self):
-        """ in [au] """
+        """in [au]"""
         return np.arange(
-            self.origin[1], self.origin[1] + (self.cell_n[1] - 0.5) * self.dv_au[1, 1],
-            self.dv_au[1, 1]
+            self.origin[1],
+            self.origin[1] + (self.cell_n[1] - 0.5) * self.dv_au[1, 1],
+            self.dv_au[1, 1],
         )
 
     @property
     def z_arr_au(self):
-        """ in [au] """
+        """in [au]"""
         return np.arange(
-            self.origin[2], self.origin[2] + (self.cell_n[2] - 0.5) * self.dv_au[2, 2],
-            self.dv_au[2, 2]
+            self.origin[2],
+            self.origin[2] + (self.cell_n[2] - 0.5) * self.dv_au[2, 2],
+            self.dv_au[2, 2],
         )
 
     @property
     def x_arr_ang(self):
-        """ in [ang] """
+        """in [ang]"""
         return self.x_arr_au / ANG_TO_BOHR
 
     @property
     def y_arr_ang(self):
-        """ in [ang] """
+        """in [ang]"""
         return self.y_arr_au / ANG_TO_BOHR
 
     @property
     def z_arr_ang(self):
-        """ in [ang] """
+        """in [ang]"""
         return self.z_arr_au / ANG_TO_BOHR

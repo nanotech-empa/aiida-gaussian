@@ -5,7 +5,7 @@
 import sys
 
 import click
-import pymatgen as mg
+import ase.io
 from aiida.common import NotExistent
 from aiida.engine import submit
 from aiida.orm import Code, Dict, StructureData
@@ -20,7 +20,7 @@ def example_dft(gaussian_code):
     print("Testing Gaussian Input Creation")
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file("./ch4.xyz"))
+    structure = StructureData(ase=ase.io.read("./ch4.xyz"))
 
     num_cores = 2
     memory_mb = 300
@@ -66,7 +66,7 @@ def example_dft(gaussian_code):
 
 
 @click.command("cli")
-@click.argument("codelabel")
+@click.argument("codelabel", default="gaussian@localhost")
 def cli(codelabel):
     """Click interface"""
     try:

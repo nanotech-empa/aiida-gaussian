@@ -97,9 +97,9 @@ def example(gaussian_code, formchk_code, cubegen_code):
 
 
 @click.command("cli")
-@click.argument("gaussian_codelabel")
-@click.argument("formchk_codelabel")
-@click.argument("cubegen_codelabel")
+@click.argument("gaussian_codelabel", default="gaussian@localhost")
+@click.argument("formchk_codelabel", default="formchk@localhost")
+@click.argument("cubegen_codelabel", default="cubegen@localhost")
 def cli(gaussian_codelabel, formchk_codelabel, cubegen_codelabel):
     """Click interface"""
     codes = []

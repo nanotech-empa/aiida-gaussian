@@ -5,7 +5,7 @@
 import sys
 
 import click
-import pymatgen as mg
+import ase.io
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
 from aiida.orm import Code, Dict, StructureData
@@ -22,7 +22,7 @@ def example_dft(gaussian_code):
     """
 
     # structure
-    structure = StructureData(pymatgen_molecule=mg.Molecule.from_file("./c2h6.xyz"))
+    structure = StructureData(ase=ase.io.read("./c2h6.xyz"))
 
     num_cores = 2
     memory_mb = 300

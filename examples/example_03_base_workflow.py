@@ -4,8 +4,8 @@
 
 import sys
 
-import click
 import ase.io
+import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
 from aiida.orm import Code, Dict, StructureData

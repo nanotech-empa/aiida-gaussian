@@ -35,6 +35,7 @@ def example_dft(gaussian_code):
             "basis_set": "6-31g",
             "charge": 0,
             "multiplicity": 1,
+            "dieze_tag": "#P",
             "route_parameters": {
                 "scf": {
                     "cdiis": None,

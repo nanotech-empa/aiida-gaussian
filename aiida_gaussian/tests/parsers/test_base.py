@@ -1,10 +1,9 @@
 """Tests for the :class:`aiida_gaussian.parsers.gaussian.GaussianBaseParser` class."""
 # pylint: disable=redefined-outer-name
-import pytest
-from aiida.orm import Dict
 
 
 def recursive_array_to_list(data):
+    """Recursively convert all numpy arrays in the mapping ``data`` to normal lists."""
     import numpy as np
 
     if isinstance(data, dict):
@@ -17,38 +16,18 @@ def recursive_array_to_list(data):
         return data
 
 
-@pytest.fixture
-def inputs():
-    return {
-        "parameters": Dict(
-            {
-                "link0_parameters": {
-                    "%chk": "aiida.chk",
-                    "%nprocshared": "1",
-                },
-                "functional": "BLYP",
-                "basis_set": "6-31g",
-                "charge": 0,
-                "multiplicity": 1,
-                "route_parameters": {
-                    "scf": {"maxcycle": 512, "cdiis": None},
-                    "nosymm": None,
-                    "opt": None,
-                },
-            }
-        )
-    }
-
-
-def test_nan_inf(generate_calc_job_node, generate_parser, inputs, data_regression):
+def test_nan_inf(generate_calc_job_node, generate_parser, data_regression):
     """Test parsing a case where the parsed dictionary contains ``nan`` and ``inf`` values."""
-    node = generate_calc_job_node("gaussian", "base", "nan_inf", inputs=inputs)
+    node = generate_calc_job_node("gaussian", "base", "nan_inf")
     parser = generate_parser("gaussian.base")
     results, calcfunction = parser.parse_from_node(node, store_provenance=False)
 
     assert calcfunction.is_finished, calcfunction.exception
     assert calcfunction.is_finished_ok, calcfunction.exit_message
     output_parameters = results["output_parameters"].get_dict()
+
+    # Remove the ``coreelectrons`` key since it is not the target of this test and contains many zeros that would
+    # significantly and unnecessarily increase the reference file in size.
     output_parameters.pop("coreelectrons")
     data = recursive_array_to_list(output_parameters)
     data_regression.check(data)

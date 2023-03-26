@@ -87,12 +87,24 @@ class GaussianBaseParser(Parser):
 
         property_dict = data.getattributes()
 
-        # replace the first delta-energy of nan with zero
-        # as nan is not allowed in AiiDA nodes
-        if "scfvalues" in property_dict:
-            property_dict["scfvalues"] = [
-                np.nan_to_num(svs) for svs in property_dict["scfvalues"]
-            ]
+        def serialize_nan_inf(data):
+            """Recursively find all numpy arrays and convert ``nan`` and ``inf`` to serializable values.
+
+            The arrays are modified in place: ``nan`` is replaced with ``0.0`` and ``-inf/inf`` are replaced with very
+            large numbers.
+
+            :param data: A mapping of data.
+            """
+            if isinstance(data, dict):
+                for sub in data.values():
+                    serialize_nan_inf(sub)
+            elif isinstance(data, list):
+                for sub in data:
+                    serialize_nan_inf(sub)
+            elif isinstance(data, np.ndarray):
+                np.nan_to_num(data, copy=False)
+
+        serialize_nan_inf(property_dict)
 
         return property_dict
 

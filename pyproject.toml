@@ -42,6 +42,7 @@ testing = [
     "coverage",
     "pytest~=6.1",
     "pytest-cov",
+    "pytest-regressions~=2.2",
     "coveralls",
 ]
 pre-commit = [

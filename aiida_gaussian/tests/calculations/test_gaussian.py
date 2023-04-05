@@ -1,22 +1,17 @@
-""" Tests for gaussian plugin
-
-"""
-
+"""Tests for gaussian plugin."""
 import os
 
 from aiida.orm import Dict, StructureData
-from aiida.plugins import CalculationFactory
 from pymatgen.core import Molecule
 
 from aiida_gaussian import tests
+from aiida_gaussian.calculations.gaussian import GaussianCalculation
 
 
-def test_gaussian(fixture_code):
-
+def test_default(fixture_code, generate_calc_job, file_regression):
+    """Test a default calculation for :class:`aiida_gaussian.calculations.gaussian.GaussianCalculation`."""
     geometry_file = os.path.join(tests.TEST_DIR, "data", "ch4.xyz")
-    expected_inp_file = os.path.join(tests.TEST_DIR, "data", "gaussian_test.inp")
 
-    # structure
     structure = StructureData(pymatgen_molecule=Molecule.from_file(geometry_file))
 
     num_cores = 1
@@ -58,26 +53,6 @@ def test_gaussian(fixture_code):
         },
     }
 
-    # Prepare the fake calculation for submission in a "sandbox folder"
-
-    from aiida.common.folders import SandboxFolder
-    from aiida.engine.utils import instantiate_process
-    from aiida.manage.manager import get_manager
-
-    manager = get_manager()
-    runner = manager.get_runner()
-
-    process_class = CalculationFactory("gaussian")
-    process = instantiate_process(runner, process_class, **inputs)
-
-    sandbox_folder = SandboxFolder()
-
-    process.prepare_for_submission(sandbox_folder)
-
-    with sandbox_folder.open("aiida.inp") as handle:
-        input_written = handle.read()
-
-    with open(expected_inp_file) as f:
-        expected_inp = f.read()
-
-    assert input_written == expected_inp
+    tmp_path, _ = generate_calc_job(GaussianCalculation, inputs)
+    content_input_file = (tmp_path / GaussianCalculation.INPUT_FILE).read_text()
+    file_regression.check(content_input_file, encoding="utf-8", extension=".in")

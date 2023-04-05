@@ -7,8 +7,13 @@ repos:
       rev: v4.4.0
       hooks:
           - id: end-of-file-fixer
-            exclude: ^.*data/
+            exclude: &exclude_files >
+                (?x)^(
+                    .*data/|
+                    aiida_gaussian/tests/.*.in$
+                )$
           - id: trailing-whitespace
+            exclude: *exclude_files
           - id: check-yaml
           - id: check-added-large-files
     - repo: https://github.com/pycqa/isort

@@ -1,5 +1,6 @@
 """AiiDA-Gaussian output parser"""
 
+import datetime
 import io
 import re
 
@@ -87,24 +88,29 @@ class GaussianBaseParser(Parser):
 
         property_dict = data.getattributes()
 
-        def serialize_nan_inf(data):
-            """Recursively find all numpy arrays and convert ``nan`` and ``inf`` to serializable values.
+        def make_serializeable(data):
+            """Recursively go through the dictionary and convert unserializeable values in-place:
 
-            The arrays are modified in place: ``nan`` is replaced with ``0.0`` and ``-inf/inf`` are replaced with very
-            large numbers.
+            1) In numpy arrays:
+                * ``nan`` -> ``0.0``
+                * ``inf`` -> large number
+            2) datetime.timedelta (introduced in cclib v1.8) -> convert to seconds
 
             :param data: A mapping of data.
             """
             if isinstance(data, dict):
-                for sub in data.values():
-                    serialize_nan_inf(sub)
+                for key, value in data.items():
+                    data[key] = make_serializeable(value)
             elif isinstance(data, list):
-                for sub in data:
-                    serialize_nan_inf(sub)
+                for index, item in enumerate(data):
+                    data[index] = make_serializeable(item)
             elif isinstance(data, np.ndarray):
                 np.nan_to_num(data, copy=False)
+            elif isinstance(data, datetime.timedelta):
+                data = data.total_seconds()
+            return data
 
-        serialize_nan_inf(property_dict)
+        make_serializeable(property_dict)
 
         return property_dict
 

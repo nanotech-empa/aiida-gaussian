@@ -93,7 +93,7 @@ def example(gaussian_code, formchk_code, cubegen_code):
             filename = f"./{aname}_h{h:.1f}.png"
             plt.savefig(filename, dpi=200, bbox_inches="tight")
             plt.close()
-            print("Saved %s!" % filename)
+            print(f"Saved {filename}!")
 
 
 @click.command("cli")

@@ -222,7 +222,7 @@ class GaussianAdvancedParser(GaussianBaseParser):
             mo_e = np.array(property_dict["moenergies"])
 
             # if either HOMO is negative, such as in the case of H, don't extract gap
-            if any([h < 0 for h in property_dict["homos"]]):
+            if any(h < 0 for h in property_dict["homos"]):
                 return
             try:
                 if nspin == 1:

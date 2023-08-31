@@ -1,18 +1,16 @@
 """Tests for gaussian plugin."""
-import os
 
 from aiida.orm import Dict, StructureData
 from pymatgen.core import Molecule
 
-from aiida_gaussian import tests
 from aiida_gaussian.calculations.gaussian import GaussianCalculation
 
 
-def test_default(fixture_code, generate_calc_job, file_regression):
+def test_default(filepath_tests, fixture_code, generate_calc_job, file_regression):
     """Test a default calculation for :class:`aiida_gaussian.calculations.gaussian.GaussianCalculation`."""
-    geometry_file = os.path.join(tests.TEST_DIR, "data", "ch4.xyz")
+    geometry_file = filepath_tests / "data" / "ch4.xyz"
 
-    structure = StructureData(pymatgen_molecule=Molecule.from_file(geometry_file))
+    structure = StructureData(pymatgen_molecule=Molecule.from_file(str(geometry_file)))
 
     num_cores = 1
     memory_mb = 1000

@@ -22,8 +22,8 @@ classifiers = [
 requires-python = ">=3.7"
 dependencies = [
     "aiida-core>=2.0.0,<3.0.0",
-    "pymatgen>=2022.1.20,<2023.0.0",
-    "cclib>=1.6.1,<=1.7",
+    "pymatgen>=2022.1.20",
+    "cclib>=1.8,<=2.0",
     "ase",
 ]
 dynamic = ["version"]

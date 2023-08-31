@@ -10,7 +10,7 @@ repos:
             exclude: &exclude_files >
                 (?x)^(
                     .*data/|
-                    aiida_gaussian/tests/.*.in$
+                    tests/.*.in$
                 )$
           - id: trailing-whitespace
             exclude: *exclude_files
@@ -62,4 +62,4 @@ repos:
       rev: 0.2.1
       hooks:
           - id: yamlfmt
-            exclude: ^aiida_gaussian/tests/
+            exclude: ^tests/

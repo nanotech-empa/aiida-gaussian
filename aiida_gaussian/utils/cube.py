@@ -105,7 +105,6 @@ class Cube:
         return c
 
     def write_cube_file(self, filename):
-
         natoms = len(self.ase_atoms)
 
         f = open(filename, "w")
@@ -134,7 +133,6 @@ class Cube:
             )
 
         if natoms > 0:
-
             positions = self.ase_atoms.positions * ANG_TO_BOHR
             numbers = self.ase_atoms.get_atomic_numbers()
             for i in range(natoms):
@@ -149,7 +147,6 @@ class Cube:
         f.close()
 
     def swapaxes(self, ax1, ax2):
-
         p = self.ase_atoms.positions
         p[:, ax1], p[:, ax2] = p[:, ax2], p[:, ax1].copy()
 

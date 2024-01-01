@@ -45,7 +45,6 @@ class GaussianBaseParser(Parser):
         return ExitCode(0)
 
     def _parse_log(self, log_file_string, inputs):
-
         # parse with cclib
         property_dict = self._parse_log_cclib(log_file_string)
 
@@ -69,7 +68,6 @@ class GaussianBaseParser(Parser):
         return None
 
     def _parse_electron_numbers(self, log_file_string):
-
         find_el = re.search(
             r"({0})\s*alpha electrons\s*({0}) beta".format(NUM_RE), log_file_string
         )
@@ -80,7 +78,6 @@ class GaussianBaseParser(Parser):
             return {}
 
     def _parse_log_cclib(self, log_file_string):
-
         data = cclib.io.ccread(io.StringIO(log_file_string))
 
         if data is None:
@@ -122,7 +119,6 @@ class GaussianBaseParser(Parser):
                 "opt" in inputs.parameters["route_parameters"]
                 or len(property_dict["atomcoords"]) > 1
             ):
-
                 opt_coords = property_dict["atomcoords"][-1]
 
                 # The StructureData output node needs a cell,
@@ -140,7 +136,6 @@ class GaussianBaseParser(Parser):
                 self.out("output_structure", structure)
 
     def _final_checks_on_log(self, log_file_string, property_dict):
-
         # Error related to the symmetry identification (?).
         if "Logic error in ASyTop." in log_file_string:
             return self.exit_codes.ERROR_ASYTOP

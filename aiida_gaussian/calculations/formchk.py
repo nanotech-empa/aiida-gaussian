@@ -44,7 +44,6 @@ class FormchkCalculation(CalcJob):
 
     # --------------------------------------------------------------------------
     def prepare_for_submission(self, folder):
-
         # create code info
         codeinfo = CodeInfo()
         codeinfo.code_uuid = self.inputs.code.uuid

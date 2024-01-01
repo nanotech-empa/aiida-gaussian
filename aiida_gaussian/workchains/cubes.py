@@ -150,7 +150,6 @@ class GaussianCubesWorkChain(WorkChain):
         return ExitCode(0)
 
     def formchk_step(self):
-
         self.report("Running FormChk")
 
         builder = FormchkCalculation.get_builder()
@@ -177,7 +176,6 @@ class GaussianCubesWorkChain(WorkChain):
         return label
 
     def cubegen_step(self):
-
         if not self._check_if_previous_calc_ok(self.ctx.formchk_node):
             return self.exit_codes.ERROR_TERMINATION  # pylint: disable=no-member
 
@@ -221,7 +219,6 @@ class GaussianCubesWorkChain(WorkChain):
         abs_orb_indexes = []
 
         if self.inputs.orbital_index_ref == "half_num_el":
-
             total_num_electrons = sum(gout_params["num_electrons"])
             ref_index = total_num_electrons // 2
 
@@ -235,7 +232,6 @@ class GaussianCubesWorkChain(WorkChain):
         abs_orb_indexes = [i for i in abs_orb_indexes if i >= 1]
 
         for i_orb in abs_orb_indexes:
-
             if self.inputs.natural_orbitals:
                 params_dict[f"{i_orb}_no"] = {
                     "kind": "MO=%d" % i_orb,

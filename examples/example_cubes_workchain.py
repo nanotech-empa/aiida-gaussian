@@ -20,7 +20,6 @@ GaussianCubesWorkChain = WorkflowFactory("gaussian.cubes")
 
 
 def example(gaussian_code, formchk_code, cubegen_code):
-
     # geometry
     ase_geom = ase.io.read("./p-quinodimethane.xyz")
     ase_geom.cell = np.diag([10.0, 10.0, 10.0])

@@ -21,7 +21,6 @@ class GaussianBaseWorkChain(BaseRestartWorkChain):
 
     @classmethod
     def define(cls, spec):
-
         super().define(spec)
         spec.expose_inputs(GaussianCalculation, namespace="gaussian")
 

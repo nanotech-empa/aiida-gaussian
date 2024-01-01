@@ -107,7 +107,6 @@ class CubegenCalculation(CalcJob):
 
     # --------------------------------------------------------------------------
     def prepare_for_submission(self, folder):
-
         # create calculation info
         calcinfo = CalcInfo()
         calcinfo.uuid = self.uuid
@@ -124,7 +123,6 @@ class CubegenCalculation(CalcJob):
             )
 
         for key, params in self.inputs.parameters.get_dict().items():
-
             cube_name = key + ".cube"
             kind_str = params["kind"]
             npts = params["npts"]

@@ -48,7 +48,6 @@ class CubegenBaseParser(Parser):
         return ExitCode(0)
 
     def _parse_folders(self, retrieved_folders, parser_params):
-
         if "heights" in parser_params:
             heights = parser_params["heights"]
         else:
@@ -66,7 +65,6 @@ class CubegenBaseParser(Parser):
         for retrieved_fd in retrieved_folders:
             for filename in retrieved_fd.list_object_names():
                 if filename.endswith(".cube"):
-
                     with retrieved_fd.open(filename) as handle:
                         cube = Cube.from_file_handle(handle)
 

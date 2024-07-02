@@ -1,4 +1,5 @@
 """Tests for the :class:`aiida_gaussian.parsers.gaussian.GaussianBaseParser` class."""
+
 # pylint: disable=redefined-outer-name
 
 

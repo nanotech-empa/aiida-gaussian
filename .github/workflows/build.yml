@@ -55,8 +55,11 @@ jobs:
               env:
                   # show timings of tests
                   PYTEST_ADDOPTS: --durations=0
-                  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   py.test --cov aiida_gaussian --cov-append .
-                  coveralls --service=github
+
+            - name: Upload coverage report
+              env:
+                  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+              run: |
+                  coveralls --service=github-actions

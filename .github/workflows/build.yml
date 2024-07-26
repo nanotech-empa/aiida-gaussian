@@ -58,6 +58,8 @@ jobs:
               run: |
                   py.test --cov aiida_gaussian --cov-append .
 
+            # note that for a matrix test that will send multiple reports to coveralls,
+            # the parallel version should be used to avoid errors.
             - name: Send coverage to Coveralls (parallel)
               uses: coverallsapp/github-action@v2
               with:

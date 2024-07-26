@@ -1,4 +1,12 @@
-"""Tests for the :class:`aiida_gaussian.parsers.gaussian.GaussianBaseParser` class."""
+"""
+Tests for the :class:`aiida_gaussian.parsers.gaussian.GaussianBaseParser` class.
+
+Note on updated parsers (e.g. in Pymatgen) and data_regression:
+If newer versions of parsers add extra fields, just update the reference data with
+    pytest --force-regen
+Although this will cause tests to fails with folder versions of the parser, but in
+general it should not be a problem.
+"""
 # pylint: disable=redefined-outer-name
 
 

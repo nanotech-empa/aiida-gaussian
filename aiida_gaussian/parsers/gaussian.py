@@ -53,7 +53,7 @@ class GaussianBaseParser(Parser):
             return self.exit_codes.ERROR_OUTPUT_PARSING
 
         property_dict.update(self._parse_electron_numbers(log_file_string))
-
+        
         # set output nodes
         self.out("output_parameters", Dict(dict=property_dict))
 
@@ -78,7 +78,7 @@ class GaussianBaseParser(Parser):
             return {"num_electrons": [int(e) for e in find_el.groups()]}
         else:
             return {}
-
+            
     def _parse_log_cclib(self, log_file_string):
 
         data = cclib.io.ccread(io.StringIO(log_file_string))
@@ -176,7 +176,9 @@ class GaussianAdvancedParser(GaussianBaseParser):
 
         if property_dict is None:
             return self.exit_codes.ERROR_OUTPUT_PARSING
-
+        # parse nics
+        property_dict.update(self._parse_nics(log_file_string))
+        
         property_dict.update(self._parse_electron_numbers(log_file_string))
 
         # Add spin expectations in property_dict
@@ -198,7 +200,30 @@ class GaussianAdvancedParser(GaussianBaseParser):
             return exit_code
 
         return None
+    def _parse_nics(self,log_file_string):
 
+        sigma = []
+
+        def extract_values(line):
+            parts = line.split()
+            return np.array([parts[1], parts[3], parts[5]], dtype=float)
+
+        lines = log_file_string.splitlines()
+        i_line = 0
+        while i_line < len(lines):
+            if "Bq   Isotropic" in lines[i_line]:
+                s = np.zeros((3, 3))
+                s[0] = extract_values(lines[i_line + 1])
+                s[1] = extract_values(lines[i_line + 2])
+                s[2] = extract_values(lines[i_line + 3])
+                sigma.append(s)
+                i_line += 4
+            else:
+                i_line += 1
+        if len(sigma) == 0:
+            return {}
+        return {'nics':np.array(sigma)}
+    
     def _parse_log_spin_exp(self, log_file_string):
         """Parse spin expectation values"""
 

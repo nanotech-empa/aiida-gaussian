@@ -18,8 +18,10 @@ metadata:
   - 1127102.5
   functional: M062X
   legacy_package_version: 16revisionC.02
+  memory_available: 300000000000
   methods:
   - DFT
+  num_cpu: 44
   package: Gaussian
   package_version: 2016+C.02
   platform: ES64L

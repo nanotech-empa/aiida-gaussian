@@ -55,8 +55,23 @@ jobs:
               env:
                   # show timings of tests
                   PYTEST_ADDOPTS: --durations=0
-                  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   py.test --cov aiida_gaussian --cov-append .
-                  coveralls --service=github
+
+            # note that for a matrix test that will send multiple reports to coveralls,
+            # the parallel version should be used to avoid errors.
+            - name: Send coverage to Coveralls (parallel)
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel: true
+                  flag-name: run ${{ join(matrix.*, ' - ') }}
+
+    coveralls-finish:
+        needs: tests
+        if: ${{ always() }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Coveralls Finished
+              uses: coverallsapp/github-action@v2
+              with:
+                  parallel-finished: true

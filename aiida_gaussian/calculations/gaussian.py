@@ -170,8 +170,12 @@ class GaussianCalculation(CalcJob):
         input_string = GaussianCalculation._render_input_string_from_params(
             self.inputs.parameters.get_dict(), pmg_structure
         )
-        # for NICS replace X0+ with Bq
-        if "nmr" in self.inputs.parameters.get_dict()["route_parameters"]:
+
+        # Handle Ghost atoms (e.g. when doing NICS calculations)
+        # Atoms with symbol 'X' in input structure are considered Ghost atoms.
+        # Pymatgen converts these into `X0+` in the input script
+        # and Gaussian needs these to be called `Bq`.
+        if pmg_structure and "X0+" in pmg_structure.labels:
             input_string = input_string.replace("X0+", "Bq")
 
         with open(folder.get_abs_path(self.INPUT_FILE), "w") as out_file:

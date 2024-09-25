@@ -217,7 +217,7 @@ class GaussianAdvancedParser(GaussianBaseParser):
         """
 
         if "Magnetic shielding tensor" not in log_file_string:
-            return
+            return {}
 
         sigma = []
 

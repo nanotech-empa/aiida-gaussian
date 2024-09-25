@@ -8,7 +8,7 @@ import ase.io
 import click
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
-from aiida.orm import Code, Dict, StructureData
+from aiida import orm
 from aiida.plugins import CalculationFactory
 
 GaussianCalculation = CalculationFactory("gaussian")
@@ -22,12 +22,12 @@ def example_nmr_nics(gaussian_code):
     """
 
     # structure
-    structure = StructureData(ase=ase.io.read("./napthalene_nics.xyz"))
+    structure = orm.StructureData(ase=ase.io.read("./naphthalene_nics.xyz"))
 
     num_cores = 1
     memory_mb = 300
 
-    parameters = Dict(
+    parameters = orm.Dict(
         {
             "link0_parameters": {
                 "%chk": "aiida.chk",
@@ -79,7 +79,7 @@ def example_nmr_nics(gaussian_code):
 def cli(codelabel):
     """Click interface"""
     try:
-        code = Code.get_from_string(codelabel)
+        code = orm.load_code(codelabel)
     except NotExistent:
         print(f"The code '{codelabel}' does not exist")
         sys.exit(1)

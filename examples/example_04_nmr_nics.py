@@ -6,9 +6,9 @@ import sys
 
 import ase.io
 import click
+from aiida import orm
 from aiida.common import NotExistent
 from aiida.engine import run_get_node
-from aiida import orm
 from aiida.plugins import CalculationFactory
 
 GaussianCalculation = CalculationFactory("gaussian")

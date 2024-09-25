@@ -185,6 +185,8 @@ class GaussianAdvancedParser(GaussianBaseParser):
         # separate HOMO-LUMO gap as its own entry in property_dict
         self._extract_homo_lumo_gap(property_dict)
 
+        property_dict.update(self._parse_nmr(log_file_string))
+
         # set output nodes
         self.out("output_parameters", Dict(dict=property_dict))
 
@@ -198,6 +200,60 @@ class GaussianAdvancedParser(GaussianBaseParser):
             return exit_code
 
         return None
+
+    def _parse_nmr(self, log_file_string):
+        """Parse the NMR magnetic shielding tensors.
+
+        Example log:
+
+        SCF GIAO Magnetic shielding tensor (ppm):
+             1  C    Isotropic =    64.6645   Anisotropy =   153.1429
+          XX=     2.6404   YX=    36.9712   ZX=    -0.0000
+          XY=    39.8249   YY=    24.5934   ZY=    -0.0000
+          XZ=    -0.0000   YZ=    -0.0000   ZZ=   166.7598
+          Eigenvalues:   -26.3192    53.5530   166.7598
+             2  C    Isotropic =    64.6641   Anisotropy =   153.1416
+        ...
+        """
+
+        if "Magnetic shielding tensor" not in log_file_string:
+            return {}
+
+        sigma = []
+
+        def extract_values(line):
+            parts = line.split()
+            return np.array([parts[1], parts[3], parts[5]], dtype=float)
+
+        lines = log_file_string.splitlines()
+        i_line = 0
+        sigma_block = False
+        while i_line < len(lines):
+            if "Magnetic shielding tensor" in lines[i_line]:
+                sigma_block = True
+
+            if sigma_block:
+
+                if "Leave Link" in lines[i_line]:
+                    sigma_block = False
+
+                if "Isotropic" in lines[i_line] and "Anisotropy" in lines[i_line]:
+                    s = np.zeros((3, 3))
+                    s[0] = extract_values(lines[i_line + 1])
+                    s[1] = extract_values(lines[i_line + 2])
+                    s[2] = extract_values(lines[i_line + 3])
+                    sigma.append(s)
+                    i_line += 4
+                else:
+                    i_line += 1
+
+            else:
+                i_line += 1
+
+        if len(sigma) == 0:
+            return {}
+
+        return {"nmr_tensors": np.array(sigma)}
 
     def _parse_log_spin_exp(self, log_file_string):
         """Parse spin expectation values"""

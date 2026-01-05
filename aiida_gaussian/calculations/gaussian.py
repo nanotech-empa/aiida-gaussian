@@ -1,4 +1,5 @@
 """Gaussian input plugin."""
+
 from aiida.common import CalcInfo, CodeInfo
 
 # from aiida.cmdline.utils import echo

@@ -7,6 +7,7 @@ If newer versions of parsers add extra fields, just update the reference data wi
 Although this will cause tests to fails with folder versions of the parser, but in
 general it should not be a problem.
 """
+
 # pylint: disable=redefined-outer-name
 
 

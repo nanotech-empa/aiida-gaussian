@@ -1,6 +1,4 @@
-""" Tests for the plugin.
-
-"""
+"""Tests for the plugin."""
 
 import os
 

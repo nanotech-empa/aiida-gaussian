@@ -4,7 +4,7 @@ ci:
 
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.4.0
+      rev: v6.0.0
       hooks:
           - id: end-of-file-fixer
             exclude: &exclude_files >
@@ -17,26 +17,26 @@ repos:
           - id: check-yaml
           - id: check-added-large-files
     - repo: https://github.com/pycqa/isort
-      rev: 5.12.0
+      rev: 7.0.0
       hooks:
           - id: isort
             args: [--profile, black, --filter-files]
     - repo: https://github.com/PyCQA/autoflake
-      rev: v2.0.0
+      rev: v2.3.1
       hooks:
           - id: autoflake
     - repo: https://github.com/asottile/pyupgrade
-      rev: v3.2.2
+      rev: v3.21.2
       hooks:
           - id: pyupgrade
             args: [--py37-plus]
-    - repo: https://github.com/psf/black
-      rev: 22.12.0
+    - repo: https://github.com/psf/black-pre-commit-mirror
+      rev: 25.12.0
       hooks:
           - id: black
             language_version: python3
     - repo: https://github.com/PyCQA/flake8
-      rev: 7.1.0
+      rev: 7.3.0
       hooks:
           - id: flake8
             args: [--count, --show-source, --statistics]
@@ -50,7 +50,7 @@ repos:
                 - pyflakes
                 - tryceratops
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v0.961
+      rev: v1.19.1
       hooks:
           - id: mypy
             additional_dependencies:
@@ -59,7 +59,7 @@ repos:
                 - types-tabulate
                 - types-toml
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 0.2.1
+      rev: 0.2.3
       hooks:
           - id: yamlfmt
             exclude: ^tests/

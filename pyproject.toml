@@ -5,52 +5,48 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "aiida-gaussian"
 description = "AiiDA plugin for the Gaussian quantum chemistry software."
-authors = [{name = "Kristjan Eimre"}, {name = "Pezhman Zarabadi-Poor"}, {name = "Aliaksandr Yakutovich"}]
-license = {text = "MIT"}
+authors = [
+  { name = "Kristjan Eimre" },
+  { name = "Pezhman Zarabadi-Poor" },
+  { name = "Aliaksandr Yakutovich" },
+]
+license = { text = "MIT" }
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Science/Research",
-    "Natural Language :: English",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Topic :: Scientific/Engineering :: Chemistry",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Framework :: AiiDA",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Chemistry",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Framework :: AiiDA",
 ]
 requires-python = ">=3.7"
 dependencies = [
-    "aiida-core>=2.0.0,<3.0.0",
-    "pymatgen>=2022.1.20",
-    "cclib>=1.8,<=2.0",
-    "ase",
+  "aiida-core>=2.0.0,<3.0.0",
+  "pymatgen>=2022.1.20",
+  "cclib>=1.8,<2.0",
+  "ase",
 ]
 dynamic = ["version"]
-
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
+readme = "README.md"
 
 [project.urls]
 Homepage = "https://github.com/nanotech-empa/aiida-gaussian"
 
 [project.optional-dependencies]
 testing = [
-    "pgtest~=1.3.2",
-    "wheel~=0.31",
-    "coverage",
-    "pytest~=7.0",
-    "pytest-cov",
-    "pytest-regressions~=2.2",
-    "coveralls",
+  "pgtest~=1.3.2",
+  "wheel~=0.31",
+  "coverage",
+  "pytest~=7.0",
+  "pytest-cov",
+  "pytest-regressions~=2.2",
+  "coveralls",
 ]
-pre-commit = [
-    "pre-commit>=2.21.0",
-]
-dev = [
-    "bumpver==2022.1119",
-]
+pre-commit = ["pre-commit>=2.21.0"]
+dev = ["bumpver==2022.1119"]
 
 [project.entry-points."aiida.calculations"]
 "gaussian" = "aiida_gaussian.calculations:GaussianCalculation"
@@ -72,10 +68,10 @@ zip-safe = false
 license-files = ["LICENSE"]
 
 [tool.setuptools.packages]
-find = {namespaces = false}
+find = { namespaces = false }
 
 [tool.setuptools.dynamic]
-version = {attr = "aiida_gaussian.version.__version__"}
+version = { attr = "aiida_gaussian.version.__version__" }
 
 [tool.bumpver]
 current_version = "v2.2.0"
@@ -86,6 +82,4 @@ tag = true
 push = true
 
 [tool.bumpver.file_patterns]
-"aiida_gaussian/version.py" = [
-    '__version__ = "{pep440_version}"',
-]
+"aiida_gaussian/version.py" = ['__version__ = "{pep440_version}"']

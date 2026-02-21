@@ -1,4 +1,4 @@
-[![build](https://github.com/nanotech-empa/aiida-gaussian/workflows/build/badge.svg)](https://github.com/nanotech-empa/aiida-gaussian/actions)
+[![build](https://github.com/nanotech-empa/aiida-gaussian/workflows/build/badge.svg?branch=main&event=push)](https://github.com/nanotech-empa/aiida-gaussian/actions)
 [![Coverage Status](https://coveralls.io/repos/github/nanotech-empa/aiida-gaussian/badge.svg?branch=master)](https://coveralls.io/github/nanotech-empa/aiida-gaussian?branch=master)
 [![PyPI version](https://badge.fury.io/py/aiida-gaussian.svg)](https://badge.fury.io/py/aiida-gaussian)
 [![DOI](https://zenodo.org/badge/241384761.svg)](https://zenodo.org/badge/latestdoi/241384761)
@@ -10,6 +10,7 @@ AiiDA plugin for the Gaussian quantum chemistry software
 ## Features
 
 Gaussian input can be provided as a python dictionary following the convention defined by [pymatgen](https://pymatgen.org/)
+
 ```python
 parameters = {
     'functional':'PBE1PBE',
@@ -35,6 +36,7 @@ parameters = {
     },
 }
 ```
+
 In `route_parameters`, specifying `key: None` adds only `key` without the equals sign to the input script.
 
 Parsing of the results is performed with the [cclib](https://github.com/cclib/cclib) library and by default all of its output is stored in the `output_parameters` node.
@@ -52,6 +54,7 @@ This installs the plugins to the AiiDA instance (to double-check, one can list a
 ## Usage
 
 A quick demo of how to submit a calculation:
+
 ```shell
 verdi daemon start # make sure the daemon is running
 cd examples
@@ -64,11 +67,11 @@ verdi run example_01_opt.py gaussian09
 To create a new release, clone the repository, install development dependencies with `pip install '.[dev]'`, and then execute `bumpver update --major/--minor/--patch`.
 This will:
 
-  1. Create a tagged release with bumped version and push it to the repository.
-  2. Trigger a GitHub actions workflow that creates a GitHub release.
+1. Create a tagged release with bumped version and push it to the repository.
+2. Trigger a GitHub actions workflow that creates a GitHub release.
 
 Additional notes:
 
-  - Use the `--dry` option to preview the release change.
-  - The release tag (e.g. a/b/rc) is determined from the last release.
-    Use the `--tag` option to switch the release tag.
+- Use the `--dry` option to preview the release change.
+- The release tag (e.g. a/b/rc) is determined from the last release.
+  Use the `--tag` option to switch the release tag.

@@ -1,0 +1,28 @@
+# Software authorship source: https://zenodo.org/records/13837325
+# AndresOrtegaGuerrero is rendered using the verified public GitHub profile name.
+cff-version: 1.2.0
+type: software
+title: aiida-gaussian
+message: If you use this software, please cite it and identify the exact version or commit
+  used. See README.md for software attribution and applicable scientific references.
+identifiers:
+- type: doi
+  value: 10.5281/zenodo.6845116
+  description: Project DOI covering archived releases; identify the exact version or commit
+    used separately.
+authors:
+- family-names: Eimre
+  given-names: Kristjan
+- family-names: Yakutovich
+  given-names: Aliaksandr
+- family-names: Pignedoli
+  given-names: Carlo
+- family-names: Zarabadi-Poor
+  given-names: Pezhman
+- family-names: Huber
+  given-names: Sebastiaan
+- family-names: Ortega-Guerrero
+  given-names: Andres
+repository-code: https://github.com/nanotech-empa/aiida-gaussian
+url: https://github.com/nanotech-empa/aiida-gaussian
+license: MIT
